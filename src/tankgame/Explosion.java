@@ -6,42 +6,33 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-
-public class Explosion extends TankGame{
+public class Explosion extends TankGame {
     Image[] frames;
-    int x, y, numFrames, frameCount;
+    int x, y, framesCount, frameNumber;
     String path = System.getProperty("user.dir");
     private final TankGame outer;
-    
-    /**
-     * 
-     * @param img: array of explosion images
-     * @param x: x coordinate
-     * @param y: y coordinate
-     * @throws IOException if image file is not found
-     */
-    Explosion(String name, int numFrames, int x, int y, final TankGame outer) 
-            throws IOException{
+
+    Explosion(String name, int framesCount, int x, int y, final TankGame outer) throws IOException {
         this.outer = outer;
         this.x = x;
         this.y = y;
-        this.numFrames = numFrames;
-        frameCount = 0;
-        frames = new Image[numFrames];
+        this.framesCount = framesCount;
+        frameNumber = 0;
+        frames = new Image[framesCount];
         path = path + name;
-               
+
+        // TODO Переименовать картинки со взрывами с нулевого индекса
         // load individual frames of explosion animation
-        for(int i=1; i <= numFrames; i++){
-            frames[i - 1] = ImageIO.read(new File(path  + i + ".png"));
-            //System.out.println(path + i + ".png");            
+        for (int i = 1; i <= framesCount; i++) {
+            frames[i - 1] = ImageIO.read(new File(path + i + ".png"));           
         }
     }
-    public void draw(ImageObserver obs) throws InterruptedException, IOException{   
-        outer.g2.drawImage(this.frames[frameCount], x, y, obs);
+
+    public void draw(ImageObserver obs) throws InterruptedException, IOException {
+        outer.g2.drawImage(this.frames[frameNumber], x, y, obs);
     }
-    
-    public void update() throws InterruptedException{
-            //y += speed;            
-            frameCount++;
-    }   
+
+    public void updateIncrement() throws InterruptedException {
+        frameNumber++;
+    }
 }

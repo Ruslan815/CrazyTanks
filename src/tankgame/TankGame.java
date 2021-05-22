@@ -381,7 +381,7 @@ public class TankGame extends JApplet implements Runnable {
             bulletsList.get(i).update(i);
 
         // update explosion frames to advance animation
-        if (explode1 != null && explode1.frameCount < explode1.numFrames) explode1.update();
+        if (explode1 != null && explode1.frameNumber < explode1.framesCount) explode1.updateIncrement();
 
         for (Wall[] tempWallArray : layout)
             for (Wall tempWall : tempWallArray)
@@ -409,11 +409,11 @@ public class TankGame extends JApplet implements Runnable {
         }
 
         // draw explosion frame
-        if (explode1 != null && explode1.frameCount < explode1.numFrames) {
+        if (explode1 != null && explode1.frameNumber < explode1.framesCount) {
             //System.out.println("Draw explosion.");
             explode1.draw(this);
         }
-        if (explode2 != null && explode2.frameCount < explode2.numFrames) {
+        if (explode2 != null && explode2.frameNumber < explode2.framesCount) {
             //System.out.println("Draw explosion.");
             explode2.draw(this);
         }
