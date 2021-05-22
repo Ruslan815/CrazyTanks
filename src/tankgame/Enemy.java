@@ -9,26 +9,25 @@ import java.util.Random;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-public class Enemy {
-
+public class Enemy {/*
     Image img;
     int x;
     int y;
     int sizeX;
     int sizeY;
     int speed;
-    Random gen;
+    Random rand;
     Rectangle bbox;
     boolean show;
     private final TankGame outer;
 
-    Enemy(Image img, int speed, Random gen, final TankGame outer) {
+    Enemy(Image img, int speed, Random rand, final TankGame outer) {
         this.outer = outer;
         this.img = img;
-        this.x = Math.abs(gen.nextInt() % (600 - 30));
-        this.y = -20;
+        this.x = Math.abs(rand.nextInt() % (600 - 30));
+        this.y = 120;
         this.speed = speed;
-        this.gen = gen;
+        this.rand = rand;
         this.show = true;
         sizeX = img.getWidth(null);
         sizeY = img.getHeight(null);
@@ -50,8 +49,7 @@ public class Enemy {
         if (outer.m1.collision(x, y, sizeX, sizeY)) {
             show = false;
             // You need to remove this one and increase score etc
-            outer.gameEvents.setValue("m1_collision");
-            outer.gameEvents.setValue("");
+            outer.gameEvents.setValue("enemy");
             outer.score1 += 50;
             outer.explode1 = new Explosion("/Resources/explosion1_", 6, this.x, this.y, outer);
             this.reset();
@@ -60,8 +58,7 @@ public class Enemy {
         if (outer.m2.collision(x, y, sizeX, sizeY)) {
             show = false;
             // You need to remove this one and increase score etc
-            outer.gameEvents.setValue("m2_collision");
-            outer.gameEvents.setValue("");
+            outer.gameEvents.setValue("enemy");
             outer.score2 += 50;
             outer.explode1 = new Explosion("/Resources/explosion1_", 6, this.x, this.y, outer);
             this.reset();
@@ -69,13 +66,11 @@ public class Enemy {
         }
         if (outer.fire != null) {
             if (this.collision(outer.fire.x, outer.fire.y, outer.fire.width, outer.fire.height)) {
-                //System.out.println(outer.fire.getOwnedBy());
                 switch (outer.fire.getOwnedBy()) {
                     case "m1":
                         this.show = false;
                         outer.score1 += 100;
                         outer.explode1 = new Explosion("/Resources/explosion1_", 6, this.x, this.y, outer);
-                        //System.out.println("Explosion created.");
                         outer.boom1.play();
                         this.reset();
                         break;
@@ -83,16 +78,13 @@ public class Enemy {
                         this.show = false;
                         outer.score2 += 100;
                         outer.explode1 = new Explosion("/Resources/explosion1_", 6, this.x, this.y, outer);
-                        //System.out.println("Explosion created.");
                         outer.boom1.play();
                         this.reset();
                         break;
-                    case "enemy":
-
+                    default:
                         break;
                 }
                 show = true;
-            } else {
             }
         }
         if (this.y >= 480) {
@@ -112,5 +104,4 @@ public class Enemy {
             outer.g2.drawImage(img, x, y, obs);
         }
     }
-
-}
+*/}
