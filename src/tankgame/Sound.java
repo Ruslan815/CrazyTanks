@@ -11,48 +11,26 @@ public class Sound {
     private Clip clip;
     boolean loop;
     String path = System.getProperty("user.dir");
-    /**
-     * 
-     * @param name
-     * @param loop
-     * @throws MalformedURLException
-     * @throws LineUnavailableException
-     * @throws UnsupportedAudioFileException
-     * @throws IOException 
-     */
-    Sound(String name, boolean loop) throws MalformedURLException, LineUnavailableException, UnsupportedAudioFileException, IOException{
-        url = new URL(
-            //"file:///home/netdom/Dropbox/Fall 2014/413/Term Project/My Project/Code/Wingman/gucci.wav" LINUX ONLY
-                "file:///" + path + name
-        );
+
+    Sound(String name, boolean loop) throws MalformedURLException, LineUnavailableException, UnsupportedAudioFileException, IOException {
+        url = new URL("file:///" + path + name);
         clip = AudioSystem.getClip();
         this.loop = loop;
-        // getAudioInputStream() also accepts a File or InputStream
-        AudioInputStream ais = AudioSystem.
-            getAudioInputStream( url );
-        clip.open(ais);
-        SwingUtilities.invokeLater(() -> {
-        });
+        AudioInputStream audioIS = AudioSystem.getAudioInputStream(url);
+        clip.open(audioIS);
+        SwingUtilities.invokeLater(() -> {}); // Отдельный Thread для потока музыки
     }
-    
-    /**
-     * 
-     */
-    public void play(){
-        // loop clip playback
-        
-        if(loop){
+
+    public void play() {
+        if (loop) {
             clip.loop(Clip.LOOP_CONTINUOUSLY);
-        
-        // play clip once
-        }else{
-            clip.setFramePosition(clip.getFrameLength()); // so that clip won't play twice intially
+        } else {
+            clip.setFramePosition(clip.getFrameLength());
             clip.loop(1);
         }
-        
     }
-    
-    public void flush(){    
+
+    public void flush() {
         clip.flush();
     }
 }
