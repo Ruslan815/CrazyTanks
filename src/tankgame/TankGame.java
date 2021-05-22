@@ -36,14 +36,14 @@ public class TankGame extends JApplet implements Runnable {
     Image miniMap, leftScreen, rightScreen;
     Image backgroundImage, bullet;
     Image playerOne, playerTwo;
-    Image powerUp;
-    private BufferedImage bufferedImg1, bimg2;
+    Image bonusItem;
+    private BufferedImage bufferedImg1;
     Graphics2D g2;
     int speed = 1, move = 0;
     int score1 = 0;
     int score2 = 0;
     int fireCounter1, fireCounter2, fireCounter3;
-    Random generator = new Random(1234567);
+    Random rand = new Random(777);
     Wall[][] layout = new Wall[28][50];
     Tank m1, m2;
     Bullet fire;
@@ -71,22 +71,20 @@ public class TankGame extends JApplet implements Runnable {
             String path = System.getProperty("user.dir");
             path = path + "/";
 
-            //System.out.println(path);
-
-            bullet = ImageIO.read(new File(path + "tankResources/Shell_basic_strip60/Shell_basic_16.png"));
-            backgroundImage = ImageIO.read(new File(path + "tankResources/Background.png"));
-            wall1 = ImageIO.read(new File(path + "tankResources/Wall1.png"));
-            wall2 = ImageIO.read(new File(path + "tankResources/Wall2.png"));
-            playerOne = ImageIO.read(new File(path + "tankResources/Tank_blue_basic_strip60/Tank_blue_basic_16.png"));
-            playerTwo = ImageIO.read(new File(path + "tankResources/Tank_red_basic_strip60/Tank_red_basic_16.png"));
-            powerUp = ImageIO.read(new File(path + "tankResources/Pickup_3.png"));
+            bullet = ImageIO.read(new File(path + "Resources/Bullet60/Shell_basic_16.png"));
+            backgroundImage = ImageIO.read(new File(path + "Resources/Background.png"));
+            wall1 = ImageIO.read(new File(path + "Resources/Wall1.png"));
+            wall2 = ImageIO.read(new File(path + "Resources/Wall2.png"));
+            playerOne = ImageIO.read(new File(path + "Resources/TankBlueBasic60/Tank_blue_basic_16.png"));
+            playerTwo = ImageIO.read(new File(path + "Resources/TankRedBasic60/Tank_red_basic_16.png"));
+            bonusItem = ImageIO.read(new File(path + "Resources/BonusItem.png"));
 
             healthBar1 = new HUDelement("/Resources/health", 5, 75, 820, this);
             healthBar2 = new HUDelement("/Resources/health", 5, 1450, 820, this);
 
-            game_over = new HUDelement("/Resources/gameOver1", 1, 745, 80, this);
+            game_over = new HUDelement("/Resources/GameOver", 1, 745, 80, this);
 
-            File layoutFile = new File(path + "tankResources/map_layout");
+            File layoutFile = new File(path + "Resources/map_layout");
             BufferedReader reader = new BufferedReader(new FileReader(layoutFile));
             String layoutStream;
 
@@ -110,7 +108,7 @@ public class TankGame extends JApplet implements Runnable {
                             i++;
                             break;
                         case '3':
-                            layout[j][i] = new Wall(powerUp, i * 32, j * 32, false, "health", this);
+                            layout[j][i] = new Wall(bonusItem, i * 32, j * 32, false, "health", this);
                             i++;
                         default:
                             break;
@@ -124,10 +122,10 @@ public class TankGame extends JApplet implements Runnable {
 
             // Подключаем музыку
             try {
-                backgroundMusic = new Sound("/tankResources/nirvana.wav", true);
+                backgroundMusic = new Sound("/Resources/nirvana.wav", true);
                 backgroundMusic.play();
-                boom1 = new Sound("/Resources/snd_explosion1.wav", false);
-                boom2 = new Sound("/Resources/snd_explosion2.wav", false);
+                boom1 = new Sound("/Resources/SoundExplosion1.wav", false);
+                boom2 = new Sound("/Resources/SoundExplosion2.wav", false);
             } catch (MalformedURLException | LineUnavailableException | UnsupportedAudioFileException ex) {
                 Logger.getLogger(TankGame.class.getName()).log(Level.SEVERE, null, ex);
             }
