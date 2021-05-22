@@ -8,21 +8,16 @@ public class GameEvents extends Observable {
     Object event;
 
     public void setValue(KeyEvent e) {
-        type = 1; // let's assume this means key input.
-        //Should use CONSTANT value for this when you program
+        type = 1;
         event = e;
         setChanged();
-        // trigger notification
         notifyObservers(this);
     }
 
     public void setValue(String msg) {
         type = 2;
         event = msg;
-        //System.out.println("TEST");
         setChanged();
-        // trigger notification
         notifyObservers(this);
     }
-    
 }
