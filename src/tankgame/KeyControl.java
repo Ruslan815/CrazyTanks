@@ -14,5 +14,4 @@ public class KeyControl extends KeyAdapter {
     public void keyPressed(KeyEvent e) {
         outer.gameEvents.setValue(e);
     }
-    
 }
