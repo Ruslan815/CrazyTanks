@@ -15,7 +15,7 @@ public class Wall {
     int x, sizeX;
     int y, sizeY;
     boolean breakable, show;
-    String pickup;
+    String blockName;
 
     private final TankGame outer;
 
@@ -27,15 +27,13 @@ public class Wall {
         this.sizeX = img.getWidth(null);
         this.sizeY = img.getHeight(null);
         this.breakable = breakable;
-        this.pickup = pickup;
+        this.blockName = pickup;
         show = true;
     }
 
     public void update() throws IOException, MalformedURLException, LineUnavailableException, UnsupportedAudioFileException {
-
         if (outer.m1.collision(x, y, sizeX, sizeY)) {
             show = true;
-
             outer.m1.speed = -5;
             if (outer.m1.x < this.x - 5) {
                 outer.m1.x -= 5;
@@ -49,18 +47,16 @@ public class Wall {
             }
             outer.m1.speed = 5;
 
-            if (this.pickup != null && this.pickup.equals("health")) {
+            if (this.blockName != null && this.blockName.equals("health")) {
                 outer.m1.health += 25;
                 outer.healthBar1.reverse();
                 System.out.println("Player 1 picked up health.");
                 this.show = false;
                 this.y = -100;
             }
-
         }
         if (outer.m2.collision(x, y, sizeX, sizeY)) {
             show = true;
-
             outer.m2.speed = -5;
             if (outer.m2.x < this.x - 5) {
                 outer.m2.x -= 5;
@@ -74,47 +70,30 @@ public class Wall {
             }
             outer.m2.speed = 5;
 
-            if (this.pickup != null && this.pickup.equals("health")) {
+            if (this.blockName != null && this.blockName.equals("health")) {
                 outer.m2.health += 25;
                 outer.healthBar2.reverse();
                 System.out.println("Player 2 picked up health.");
                 this.show = false;
                 this.y = -100;
-            }            
-            
-            
+            }
         }
-        for (TankGame.Bullet clip : outer.bulletsList) {
-            if (clip != null) {
-                if (this.collision(clip.x, clip.y, clip.width, clip.height)) {
-                    //System.out.println(outer.fire.getOwnedBy());
-                    switch (clip.getOwnedBy()) {
-                        case "m1":
-                            //System.out.println("Explosion created.");
-                            clip.show = false;
-                            outer.explode1 = new Explosion("/Resources/explosion1_", 6, clip.x, clip.y, outer);
-                            if (this.breakable) {
-                                this.show = false;
-                                this.y = -100;
-                            }
-                            break;
-                        case "m2":
-                            //System.out.println("Explosion created.");
-                            clip.show = false;
-                            outer.explode1 = new Explosion("/Resources/explosion1_", 6, clip.x, clip.y, outer);
-                            if (this.breakable) {
-                                this.show = false;
-                                this.y = -100;
-                            }
-                            break;
-                        default:
-                            break;
+
+        for (TankGame.Bullet tempBullet : outer.bulletsList) {
+            if (tempBullet != null) {
+                if (this.collision(tempBullet.x, tempBullet.y, tempBullet.width, tempBullet.height)) {
+                    String bulletOwner = tempBullet.getOwnedBy();
+                    if (bulletOwner.equals("m1") || bulletOwner.equals("m2")) {
+                        tempBullet.show = false;
+                        outer.explode1 = new Explosion("/Resources/explosion1_", 6, tempBullet.x, tempBullet.y, outer);
+                        if (this.breakable) {
+                            this.show = false;
+                            this.y = -100;
+                        }
                     }
-                } else {
                 }
             }
         }
-//System.out.println("Clip size: " + outer.clip.size());
     }
 
     public void draw(ImageObserver obs) {
