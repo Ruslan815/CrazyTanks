@@ -34,10 +34,10 @@ public class TankGame extends JApplet implements Runnable {
 
     private Thread thread;
     Image miniMap, leftScreen, rightScreen;
-    Image sea, bullet;
+    Image backgroundImage, bullet;
     Image playerOne, playerTwo;
     Image powerUp;
-    private BufferedImage bimg1, bimg2;
+    private BufferedImage bufferedImg1, bimg2;
     Graphics2D g2;
     int speed = 1, move = 0;
     int score1 = 0;
@@ -74,7 +74,7 @@ public class TankGame extends JApplet implements Runnable {
             //System.out.println(path);
 
             bullet = ImageIO.read(new File(path + "tankResources/Shell_basic_strip60/Shell_basic_16.png"));
-            sea = ImageIO.read(new File(path + "tankResources/Background.png"));
+            backgroundImage = ImageIO.read(new File(path + "tankResources/Background.png"));
             wall1 = ImageIO.read(new File(path + "tankResources/Wall1.png"));
             wall2 = ImageIO.read(new File(path + "tankResources/Wall2.png"));
             playerOne = ImageIO.read(new File(path + "tankResources/Tank_blue_basic_strip60/Tank_blue_basic_16.png"));
@@ -211,7 +211,6 @@ public class TankGame extends JApplet implements Runnable {
                 show = false;
                 bulletsList.remove(i);
                 bulletsList.trimToSize();
-
             }
 
             // player 1 попал в player 2
@@ -356,71 +355,53 @@ public class TankGame extends JApplet implements Runnable {
         }
     }
 
-    public void drawBackGroundWithTileImage() {
-        int TileWidth = sea.getWidth(this);
-        int TileHeight = sea.getHeight(this);
+    // TODO Проверить правильность индексации
+    public void drawBackGroundImage() {
+        int TileWidth = backgroundImage.getWidth(this);
+        int TileHeight = backgroundImage.getHeight(this);
 
-        int NumberX = (int) (w / TileWidth);
-        int NumberY = (int) (h / TileHeight);
+        int NumberX = w / TileWidth;
+        int NumberY = h / TileHeight;
 
         for (int i = -1; i <= NumberY; i++) {
             for (int j = 0; j <= NumberX; j++) {
-                g2.drawImage(sea, j * TileWidth,
-                        i * TileHeight + (move % TileHeight), TileWidth,
-                        TileHeight, this);
+                g2.drawImage(backgroundImage, j * TileWidth, i * TileHeight, TileWidth, TileHeight, this); // third param y: i * TileHeight + (move % TileHeight)
             }
         }
     }
 
-    public void drawDemo() throws IOException, InterruptedException, MalformedURLException, LineUnavailableException, UnsupportedAudioFileException, AWTException {
-
-        drawBackGroundWithTileImage();
-
-        for (Wall[] layout1 : layout) {
-            for (Wall layout11 : layout1) {
-                if (layout11 != null) {
-                    layout11.update();
-                }
-            }
-        }
+    public void drawScene() throws IOException, InterruptedException, MalformedURLException, LineUnavailableException, UnsupportedAudioFileException, AWTException {
+        drawBackGroundImage();
+        for (Wall[] tempWallArray : layout)
+            for (Wall tempWall : tempWallArray)
+                if (tempWall != null) tempWall.update();
 
         // update bullet locations
-        for (int i = 0; i < bulletsList.size(); i++) {
+        for (int i = 0; i < bulletsList.size(); i++)
             bulletsList.get(i).update(i);
-        }
 
         // update explosion frames to advance animation
-        if (explode1 != null && explode1.frameCount < explode1.numFrames) {
-            explode1.update();
-        }
+        if (explode1 != null && explode1.frameCount < explode1.numFrames) explode1.update();
 
-        for (Wall[] layout1 : layout) {
-            for (Wall layout11 : layout1) {
-                if (layout11 != null) {
-                    layout11.draw(this);
-                }
-            }
-        }
+        for (Wall[] tempWallArray : layout)
+            for (Wall tempWall : tempWallArray)
+                if (tempWall != null) tempWall.draw(this);
 
-        // draw planes while health > 0
-        if (!m1.isExploded) {
-            m1.draw(this);
-        }
-
-        if (!m2.isExploded) {
-            m2.draw(this);
-        }
+        // draw tanks while health > 0
+        if (!m1.isExploded) m1.draw(this);
+        if (!m2.isExploded) m2.draw(this);
 
         // draw bullets
-        bulletsList.stream().forEach((Bullet clip1) -> {
+        for (Bullet tempBullet : bulletsList)
+            tempBullet.draw(this);
+        /*bulletsList.stream().forEach((Bullet clip1) -> {
             clip1.draw(this);
-        });
+        });*/
 
-        // remove planes from screen upon death
+        // remove tanks from screen upon death
         if (m1.isExploded) {
             explode2 = new Explosion("/Resources/explosion2_", 7, m1.x, m1.y, this);
             m1.y = -100;
-
         }
         if (m2.isExploded) {
             explode2 = new Explosion("/Resources/explosion2_", 7, m2.x, m2.y, this);
@@ -437,7 +418,7 @@ public class TankGame extends JApplet implements Runnable {
             explode2.draw(this);
         }
 
-        // set screen limits
+        // Вычисление границ двух экранов игроков
         int x1, y1, x2, y2, width, height;
         x1 = m1.x - 120;
         y1 = m1.y - 300;
@@ -445,48 +426,30 @@ public class TankGame extends JApplet implements Runnable {
         y2 = m2.y - 300;
         width = 500;
         height = 600;
-        if (x1 < 0) {
-            x1 = 0;
-        }
-        if (x2 < 0) {
-            x2 = 0;
-        }
-        if (y1 < 0) {
-            y1 = 0;
-        }
-        if (y2 < 0) {
-            y2 = 0;
-        }
-        if (x1 + width > 1590) {
-            x1 = 1095;
-        }
-        if (x2 + width > 1590) {
-            x2 = 1095;
-        }
-        //System.out.println("x: " + x + ", full: " + (x + width));
-        if (y1 + height > 900) {
-            y1 = 300;
-        }
-        if (y2 + height > 900) {
-            y2 = 300;
-        }
-        //System.out.println("y + height: " + (y + height));
+        if (x1 < 0) x1 = 0;
+        if (x2 < 0) x2 = 0;
+        if (y1 < 0) y1 = 0;
+        if (y2 < 0) y2 = 0;
+        if (x1 + width > 1590) x1 = 1095;
+        if (x2 + width > 1590) x2 = 1095;
+        if (y1 + height > 900) y1 = 300;
+        if (y2 + height > 900) y2 = 300;
 
         // draw screen portions
-        leftScreen = bimg1.getSubimage(x1, y1, width, height);
-        rightScreen = bimg1.getSubimage(x2, y2, width, height);
+        leftScreen = bufferedImg1.getSubimage(x1, y1, width, height);
+        rightScreen = bufferedImg1.getSubimage(x2, y2, width, height);
 
         leftScreen = leftScreen.getScaledInstance(800, 900, Image.SCALE_FAST);
         rightScreen = rightScreen.getScaledInstance(800, 900, Image.SCALE_FAST);
-        miniMap = bimg1.getScaledInstance(400, 225, Image.SCALE_FAST);
+        miniMap = bufferedImg1.getScaledInstance(400, 225, Image.SCALE_FAST);
 
         // render single frame from parts
         BufferedImage display = new BufferedImage(this.w, this.h, BufferedImage.TYPE_INT_RGB);
-        Graphics temp = display.getGraphics();
+        Graphics tempGraphics = display.getGraphics();
 
-        temp.drawImage(leftScreen, 0, 0, null);
-        temp.drawImage(rightScreen, 800, 0, null);
-        temp.drawImage(miniMap, 600, 660, null);
+        tempGraphics.drawImage(leftScreen, 0, 0, null);
+        tempGraphics.drawImage(rightScreen, 800, 0, null);
+        tempGraphics.drawImage(miniMap, 600, 660, null);
 
         g2.drawImage(leftScreen, 0, 0, this);
         g2.drawImage(rightScreen, 800, 0, this);
@@ -500,10 +463,12 @@ public class TankGame extends JApplet implements Runnable {
         if (m1.isExploded || m2.isExploded) {
             m1.isExploded = true;
             m2.isExploded = true;
+            m1.speed = 0;
+            m2.speed = 0;
             game_over.draw(this);
             g2.setFont(new Font("Arial", Font.BOLD, 20));
             g2.setColor(Color.WHITE);
-            g2.drawString("FINAL SCORE", 800, 125);
+            g2.drawString("SCORE", 800, 125);
             g2.setFont(new Font("Arial", Font.BOLD, 15));
             g2.drawString("Player 1", 750, 150);
             g2.drawString(Integer.toString(score1), 960, 150);
@@ -514,20 +479,19 @@ public class TankGame extends JApplet implements Runnable {
     }
 
     @Override
-    public void paint(Graphics g) {
-        if (bimg1 == null) {
+    public void paint(Graphics tempGraphics) {
+        if (bufferedImg1 == null) {
             Dimension windowSize = getSize();
-            bimg1 = (BufferedImage) createImage(windowSize.width,
-                    windowSize.height);
-            g2 = bimg1.createGraphics();
-
+            bufferedImg1 = (BufferedImage) createImage(windowSize.width, windowSize.height);
+            g2 = bufferedImg1.createGraphics();
         }
+
         try {
-            drawDemo();
+            drawScene();
         } catch (IOException | InterruptedException | LineUnavailableException | UnsupportedAudioFileException | AWTException ex) {
             Logger.getLogger(TankGame.class.getName()).log(Level.SEVERE, null, ex);
         }
-        g.drawImage(bimg1, 0, 0, this);
+        tempGraphics.drawImage(bufferedImg1, 0, 0, this);
     }
 
     @Override
@@ -535,36 +499,31 @@ public class TankGame extends JApplet implements Runnable {
         thread = new Thread(this);
         thread.setPriority(Thread.MIN_PRIORITY);
         thread.start();
-
     }
 
     @Override
     public void run() {
-
-        Thread me = Thread.currentThread();
-        while (thread == me) {
+        Thread currThread = Thread.currentThread();
+        while (thread == currThread) {
             repaint();
             try {
                 Thread.sleep(25);
             } catch (InterruptedException e) {
                 break;
             }
-
         }
     }
 
-    public static void main(String argv[]) {
-        final TankGame demo = new TankGame();
-        demo.init();
-        JFrame f = new JFrame("TankGame2");
-        f.addWindowListener(new WindowAdapter() {
-        });
-        f.getContentPane().add("Center", demo);
-        f.pack();
-        f.setSize(new Dimension(1610, 930));
-        f.setVisible(true);
-        f.setResizable(false);
-        demo.start();
+    public static void main(String[] argv) {
+        final TankGame mainGame = new TankGame();
+        mainGame.init();
+        JFrame mainJFrame = new JFrame("TankGame2");
+        mainJFrame.addWindowListener(new WindowAdapter() {});
+        mainJFrame.getContentPane().add("Center", mainGame);
+        mainJFrame.pack();
+        mainJFrame.setSize(new Dimension(1610, 930));
+        mainJFrame.setVisible(true);
+        mainJFrame.setResizable(false);
+        mainGame.start();
     }
-
 }
