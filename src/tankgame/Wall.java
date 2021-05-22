@@ -49,7 +49,7 @@ public class Wall {
 
             if (this.blockName != null && this.blockName.equals("health")) {
                 outer.m1.health += 25;
-                outer.healthBar1.reverse();
+                outer.healthBar1.updateDecrement();
                 System.out.println("Player 1 picked up health.");
                 this.show = false;
                 this.y = -100;
@@ -72,7 +72,7 @@ public class Wall {
 
             if (this.blockName != null && this.blockName.equals("health")) {
                 outer.m2.health += 25;
-                outer.healthBar2.reverse();
+                outer.healthBar2.updateDecrement();
                 System.out.println("Player 2 picked up health.");
                 this.show = false;
                 this.y = -100;

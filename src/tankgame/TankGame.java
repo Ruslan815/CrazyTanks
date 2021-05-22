@@ -333,7 +333,7 @@ public class TankGame extends JApplet implements Runnable {
                 String msg = (String) gameEvent.event;
                 if (msg.equals("m1_collision") && this.equals(m1)) {
                     m1.health -= 25;
-                    healthBar1.update();
+                    healthBar1.updateIncrement();
                     if (health > 0) boom1.play();
                     System.out.println("Player 1 health updated to: " + m1.health);
                     if (m1.health == 0) {
@@ -343,7 +343,7 @@ public class TankGame extends JApplet implements Runnable {
                 }
                 if (msg.equals("m2_collision") && this.equals(m2)) {
                     m2.health -= 25;
-                    healthBar2.update();
+                    healthBar2.updateIncrement();
                     if (health > 0) boom1.play();
                     System.out.println("Player 2 health updated to: " + m2.health);
                     if (m2.health == 0) {
