@@ -84,7 +84,7 @@ public class Wall {
             
             
         }
-        for (TankGame.Bullet clip : outer.clip) {
+        for (TankGame.Bullet clip : outer.bulletsList) {
             if (clip != null) {
                 if (this.collision(clip.x, clip.y, clip.width, clip.height)) {
                     //System.out.println(outer.fire.getOwnedBy());
