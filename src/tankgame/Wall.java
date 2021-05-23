@@ -48,8 +48,10 @@ public class Wall {
             outer.tank1.speed = 5;
 
             if (this.blockName != null && this.blockName.equals("health")) {
-                outer.tank1.health += 25;
-                outer.healthBar1.updateIncrement();
+                if (outer.tank1.health <= 100) {
+                    outer.tank1.health += 25;
+                    outer.healthBar1.updateDecrement();
+                }
                 this.show = false;
                 this.y = -100;
             }
@@ -70,8 +72,10 @@ public class Wall {
             outer.tank2.speed = 5;
 
             if (this.blockName != null && this.blockName.equals("health")) {
-                outer.tank2.health += 25;
-                outer.healthBar2.updateIncrement();
+                if (outer.tank2.health <= 100) {
+                    outer.tank2.health += 25;
+                    outer.healthBar2.updateDecrement();
+                }
                 this.show = false;
                 this.y = -100;
             }

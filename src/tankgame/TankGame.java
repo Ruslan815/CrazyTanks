@@ -74,8 +74,10 @@ public class TankGame extends JPanel implements Runnable {
             playerTwo = ImageIO.read(new File(path + "Resources/TankRedBasic60/Tank_red_basic_16.png"));
             bonusItem = ImageIO.read(new File(path + "Resources/BonusItem.png"));
 
-            healthBar1 = new HUDelement("/Resources/health", 5, 75, 820, this);
-            healthBar2 = new HUDelement("/Resources/health", 5, 1450, 820, this);
+            healthBar1 = new HUDelement("/Resources/health", 6, 75, 820, this);
+            healthBar2 = new HUDelement("/Resources/health", 6, 1450, 820, this);
+            healthBar1.updateIncrement();
+            healthBar2.updateIncrement();
 
             game_over = new HUDelement("/Resources/GameOver", 1, 745, 80, this);
 
