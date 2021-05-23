@@ -42,14 +42,14 @@ public class TankGame extends JPanel implements Runnable {
     Random rand = new Random(777);
     Wall[][] layout = new Wall[28][50];
     Tank tank1, tank2;
-    Bullet fire;
+    Bullet newTempBullet;
     Explosion explode1, explode2;
     Sound backgroundMusic, boom1, boom2, gameOver;
 
     // declare HUD elements
     HUDelement healthBar1, healthBar2, healthLabel1, healthLabel2, score_1, score_2, scoreLabel1, scoreLabel2, game_over;
 
-    ArrayList<Bullet> bulletsList = new <Bullet>ArrayList();
+    ArrayList<Bullet> bulletsList = new ArrayList<Bullet>();
     int w = 1610, h = 930; // fixed size window game 
     Enemy e1;
     Enemy e2, e3;
@@ -95,11 +95,11 @@ public class TankGame extends JPanel implements Runnable {
                             i++;
                             break;
                         case '1':
-                            layout[j][i] = new Wall(wall1, i * 32, j * 32, true, null, this);
+                            layout[j][i] = new Wall(wall1, i * 32, j * 32, true, "wall1", this);
                             i++;
                             break;
                         case '2':
-                            layout[j][i] = new Wall(wall2, i * 32, j * 32, false, null, this);
+                            layout[j][i] = new Wall(wall2, i * 32, j * 32, false, "wall2", this);
                             i++;
                             break;
                         case '3':
@@ -118,7 +118,7 @@ public class TankGame extends JPanel implements Runnable {
             // Подключаем музыку
             try {
                 backgroundMusic = new Sound("/Resources/nirvana.wav", true);
-                backgroundMusic.play();
+                //TODO backgroundMusic.play();
                 boom1 = new Sound("/Resources/SoundExplosion1.wav", false);
                 boom2 = new Sound("/Resources/SoundExplosion2.wav", false);
             } catch (MalformedURLException | LineUnavailableException | UnsupportedAudioFileException ex) {
@@ -141,7 +141,6 @@ public class TankGame extends JPanel implements Runnable {
     }
 
     public class Bullet {
-
         Image img;
         int x, bx;
         int y, by;
@@ -151,7 +150,6 @@ public class TankGame extends JPanel implements Runnable {
         double angle;
         Rectangle box;
         boolean show;
-        String shootStyle;
         private String ownedBy;
 
         Bullet(Image img, int x, int y, int bx, int by, double angle) {
@@ -176,8 +174,8 @@ public class TankGame extends JPanel implements Runnable {
             }
         }
 
-        // Удаляем объект Bullet.
         public void update(int i) throws IOException {
+            // Удаляем объект Bullet.
             if (this.show) {
                 this.x += this.bx;
                 this.y -= this.by;
@@ -187,6 +185,7 @@ public class TankGame extends JPanel implements Runnable {
                 boom1.flush();
                 boom1.play();
                 bulletsList.remove(i);
+                bulletsList.trimToSize();
             }
 
             // Удаляем объект Bullet когда он выходит за экран.
@@ -197,8 +196,8 @@ public class TankGame extends JPanel implements Runnable {
             }
 
             // player 2 попал в player 1
-            if (this.collision(tank1.x, tank1.y, tank1.width, tank1.height) && "m2".equals(this.getOwnedBy()) && this.show && this != null) {
-                gameEvents.setValue("m1_collision");
+            if (this.collision(tank1.x, tank1.y, tank1.width, tank1.height) && "tank2".equals(this.getOwnedBy()) && this.show) {
+                gameEvents.setValue("tank2_hit_tank1");
                 score2 += 50;
                 explode1 = new Explosion("/Resources/explosion1_", 6, this.x, this.y, TankGame.this);
                 show = false;
@@ -207,8 +206,8 @@ public class TankGame extends JPanel implements Runnable {
             }
 
             // player 1 попал в player 2
-            if (this.collision(tank2.x, tank2.y, tank2.width, tank2.height) && "m1".equals(this.getOwnedBy()) && this.show && this != null) {
-                gameEvents.setValue("m2_collision");
+            if (this.collision(tank2.x, tank2.y, tank2.width, tank2.height) && "tank1".equals(this.getOwnedBy()) && this.show) {
+                gameEvents.setValue("tank1_hit_tank2");
                 score1 += 50;
                 explode1 = new Explosion("/Resources/explosion1_", 6, this.x, this.y, TankGame.this);
                 show = false;
@@ -227,8 +226,8 @@ public class TankGame extends JPanel implements Runnable {
             return ownedBy;
         }
 
-        public void setOwnedBy(String planeID) {
-            ownedBy = planeID;
+        public void setOwnedBy(String ownerID) {
+            ownedBy = ownerID;
         }
     }
 
@@ -290,17 +289,17 @@ public class TankGame extends JPanel implements Runnable {
                     return;
                 }
 
-                fire = new Bullet(bullet, this.x + (this.width / 2), this.y + (this.height / 2), (int) (this.speed * Math.sin(Math.toRadians(this.angle))),
+                newTempBullet = new Bullet(bullet, this.x + (this.width / 2), this.y + (this.height / 2), (int) (this.speed * Math.sin(Math.toRadians(this.angle))),
                         (int) (this.speed * Math.cos(Math.toRadians(this.angle))), this.angle);
 
                 if (this.equals(tank1)) {
                     tank1.lastShot = currTime;
-                    fire.setOwnedBy("m1");
+                    newTempBullet.setOwnedBy("tank1");
                 } else if (this.equals(tank2)) {
                     tank2.lastShot = currTime;
-                    fire.setOwnedBy("m2");
+                    newTempBullet.setOwnedBy("tank2");
                 }
-                bulletsList.add(fire);
+                bulletsList.add(newTempBullet);
             }
         }
 
@@ -348,7 +347,7 @@ public class TankGame extends JPanel implements Runnable {
                 }
             } else if (gameEvent.type == 2) {
                 String msg = (String) gameEvent.event;
-                if (msg.equals("m1_collision") && this.equals(tank1)) {
+                if (msg.equals("tank2_hit_tank1") && this.equals(tank1)) {
                     tank1.health -= 25;
                     healthBar1.updateIncrement();
                     if (health > 0) boom1.play();
@@ -358,7 +357,7 @@ public class TankGame extends JPanel implements Runnable {
                         boom2.play();
                     }
                 }
-                if (msg.equals("m2_collision") && this.equals(tank2)) {
+                if (msg.equals("tank1_hit_tank2") && this.equals(tank2)) {
                     tank2.health -= 25;
                     healthBar2.updateIncrement();
                     if (health > 0) boom1.play();
@@ -448,9 +447,6 @@ public class TankGame extends JPanel implements Runnable {
         // draw bullets
         for (Bullet tempBullet : bulletsList)
             tempBullet.draw(this);
-        /*bulletsList.stream().forEach((Bullet clip1) -> {
-            clip1.draw(this);
-        });*/
 
         // remove tanks from screen upon death
         if (tank1.isExploded) {
@@ -496,12 +492,11 @@ public class TankGame extends JPanel implements Runnable {
             System.exit(0);
         }
 
-
         leftScreen = leftScreen.getScaledInstance(800, 900, Image.SCALE_FAST);
         rightScreen = rightScreen.getScaledInstance(800, 900, Image.SCALE_FAST);
         miniMap = bufferedImg1.getScaledInstance(400, 225, Image.SCALE_FAST);
 
-        // render single frame from parts
+        // render single frame from parts (двойная буферизация)
         BufferedImage display = new BufferedImage(this.w, this.h, BufferedImage.TYPE_INT_RGB);
         Graphics tempGraphics = display.getGraphics();
 
@@ -517,7 +512,7 @@ public class TankGame extends JPanel implements Runnable {
         healthBar1.draw(this);
         healthBar2.draw(this);
 
-        // if a player dies, display game over logo and final score
+        // game over logo and final score
         if (tank1.isExploded || tank2.isExploded) {
             tank1.isExploded = true;
             tank2.isExploded = true;
@@ -548,6 +543,7 @@ public class TankGame extends JPanel implements Runnable {
         } catch (IOException | InterruptedException | LineUnavailableException | UnsupportedAudioFileException | AWTException ex) {
             Logger.getLogger(TankGame.class.getName()).log(Level.SEVERE, null, ex);
         }
+        // Двойная буферизация
         tempGraphics.drawImage(bufferedImg1, 0, 0, this);
     }
 

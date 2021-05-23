@@ -49,8 +49,7 @@ public class Wall {
 
             if (this.blockName != null && this.blockName.equals("health")) {
                 outer.tank1.health += 25;
-                outer.healthBar1.updateDecrement();
-                System.out.println("Player 1 picked up health.");
+                outer.healthBar1.updateIncrement();
                 this.show = false;
                 this.y = -100;
             }
@@ -72,8 +71,7 @@ public class Wall {
 
             if (this.blockName != null && this.blockName.equals("health")) {
                 outer.tank2.health += 25;
-                outer.healthBar2.updateDecrement();
-                System.out.println("Player 2 picked up health.");
+                outer.healthBar2.updateIncrement();
                 this.show = false;
                 this.y = -100;
             }
@@ -81,9 +79,9 @@ public class Wall {
 
         for (TankGame.Bullet tempBullet : outer.bulletsList) {
             if (tempBullet != null) {
-                if (this.collision(tempBullet.x, tempBullet.y, tempBullet.width, tempBullet.height)) {
+                if (this.collision(tempBullet.x, tempBullet.y, tempBullet.width, tempBullet.height) && !this.blockName.equals("health")) {
                     String bulletOwner = tempBullet.getOwnedBy();
-                    if (bulletOwner.equals("m1") || bulletOwner.equals("m2")) {
+                    if (bulletOwner.equals("tank1") || bulletOwner.equals("tank2")) {
                         tempBullet.show = false;
                         outer.explode1 = new Explosion("/Resources/explosion1_", 6, tempBullet.x, tempBullet.y, outer);
                         if (this.breakable) {
@@ -105,5 +103,4 @@ public class Wall {
         Rectangle otherBBox = new Rectangle(x, y, w, h);
         return this.box.intersects(otherBBox);
     }
-
 }
