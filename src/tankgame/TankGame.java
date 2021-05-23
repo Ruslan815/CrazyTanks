@@ -434,8 +434,14 @@ public class TankGame extends JApplet implements Runnable {
         if (y2 + height > 900) y2 = 300;
 
         // draw screen portions
-        leftScreen = bufferedImg1.getSubimage(x1, y1, width, height);
-        rightScreen = bufferedImg1.getSubimage(x2, y2, width, height);
+        try {
+            leftScreen = bufferedImg1.getSubimage(x1, y1, width, height);
+            rightScreen = bufferedImg1.getSubimage(x2, y2, width, height);
+        } catch (Exception e) {
+            System.out.println("BufferedImage Exception!");
+            System.exit(0);
+        }
+
 
         leftScreen = leftScreen.getScaledInstance(800, 900, Image.SCALE_FAST);
         rightScreen = rightScreen.getScaledInstance(800, 900, Image.SCALE_FAST);
