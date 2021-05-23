@@ -7,8 +7,12 @@ public class GameEvents extends Observable {
     int type;
     Object event;
 
-    public void setValue(KeyEvent e) {
-        type = 1;
+    public void setValue(KeyEvent e, boolean isPressed) {
+        if (isPressed) {
+            type = 1;
+        } else {
+            type = 3;
+        }
         event = e;
         setChanged();
         notifyObservers(this);

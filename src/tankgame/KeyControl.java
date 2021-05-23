@@ -12,6 +12,11 @@ public class KeyControl extends KeyAdapter {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        outer.gameEvents.setValue(e);
+        outer.gameEvents.setValue(e, true);
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        outer.gameEvents.setValue(e, false);
     }
 }

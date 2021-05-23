@@ -18,10 +18,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -128,7 +125,7 @@ public class TankGame extends JPanel implements Runnable {
                 Logger.getLogger(TankGame.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-            // Init wall arrays
+            // Init observers
             tank1 = new Tank(playerOne, 150, 400, 5, 90);
             tank2 = new Tank(playerTwo, 1485, 400, 5, 270);
             gameEvents = new GameEvents();
@@ -243,6 +240,8 @@ public class TankGame extends JPanel implements Runnable {
         protected int health = 100;
         Rectangle bbox;
         boolean isExploded;
+        boolean[] pressedKeys; // Left, Right, Up, Down, Shoot
+        long lastShot; // One shot in 500 ms
 
         Tank(Image img, int x, int y, int speed, double angle) {
             this.img = img;
@@ -253,9 +252,13 @@ public class TankGame extends JPanel implements Runnable {
             height = img.getHeight(null);
             isExploded = false;
             this.angle = angle;
+            this.pressedKeys = new boolean[5];
+            Arrays.fill(this.pressedKeys, false);
+            this.lastShot = new Date().getTime();
         }
 
         public void draw(ImageObserver obs) {
+            this.moveTank();
             AffineTransform old = g2.getTransform();
             g2.rotate(Math.toRadians(this.angle), this.x + (this.width / 2), this.y + (this.height / 2));
             g2.drawImage(this.img, this.x, this.y, obs);
@@ -268,59 +271,77 @@ public class TankGame extends JPanel implements Runnable {
             return this.bbox.intersects(otherBox);
         }
 
+        public void moveTank() {
+            if (this.pressedKeys[0]) this.angle -= 5;
+            if (this.pressedKeys[1]) this.angle += 5;
+            if (this.pressedKeys[2]) {
+                this.y -= this.speed * Math.cos(Math.toRadians(this.angle));
+                this.x += this.speed * Math.sin(Math.toRadians(this.angle));
+            }
+            if (this.pressedKeys[3]) {
+                this.y += this.speed * Math.cos(Math.toRadians(this.angle));
+                this.x -= this.speed * Math.sin(Math.toRadians(this.angle));
+            }
+            if (this.pressedKeys[4]) {
+                long currTime = new Date().getTime();
+                if (this.equals(tank1) && (currTime - tank1.lastShot) < 500) {
+                    return;
+                } else if (this.equals(tank2) && (currTime - tank2.lastShot) < 500) {
+                    return;
+                }
+
+                fire = new Bullet(bullet, this.x + (this.width / 2), this.y + (this.height / 2), (int) (this.speed * Math.sin(Math.toRadians(this.angle))),
+                        (int) (this.speed * Math.cos(Math.toRadians(this.angle))), this.angle);
+
+                if (this.equals(tank1)) {
+                    tank1.lastShot = currTime;
+                    fire.setOwnedBy("m1");
+                } else if (this.equals(tank2)) {
+                    tank2.lastShot = currTime;
+                    fire.setOwnedBy("m2");
+                }
+                bulletsList.add(fire);
+            }
+        }
+
         @Override
         public void update(Observable obj, Object arg) {
-            double rotation = Math.toRadians(15);
             GameEvents gameEvent = (GameEvents) arg;
             if (gameEvent.type == 1) {
                 KeyEvent keyEvent = (KeyEvent) gameEvent.event;
                 switch (keyEvent.getKeyCode()) {
                     case KeyEvent.VK_LEFT:
-                        if (this.equals(tank2)) tank2.angle -= 15;
+                        if (this.equals(tank2)) tank2.pressedKeys[0] = true;
                         break;
                     case KeyEvent.VK_RIGHT:
-                        if (this.equals(tank2)) tank2.angle += 15;
+                        if (this.equals(tank2)) tank2.pressedKeys[1] = true;
                         break;
                     case KeyEvent.VK_UP:
-                        tank2.y -= speed * Math.cos(Math.toRadians(tank2.angle));
-                        tank2.x += speed * Math.sin(Math.toRadians(tank2.angle));
+                        if (this.equals(tank2)) tank2.pressedKeys[2] = true;
                         break;
                     case KeyEvent.VK_DOWN:
-                        tank2.y += speed * Math.cos(Math.toRadians(tank2.angle));
-                        tank2.x -= speed * Math.sin(Math.toRadians(tank2.angle));
+                        if (this.equals(tank2)) tank2.pressedKeys[3] = true;
                         break;
                     case KeyEvent.VK_A:
-                        if (this.equals(tank1)) tank1.angle -= 15;
+                        if (this.equals(tank1)) tank1.pressedKeys[0] = true;
                         break;
                     case KeyEvent.VK_D:
-                        if (this.equals(tank1)) tank1.angle += 15;
+                        if (this.equals(tank1)) tank1.pressedKeys[1] = true;
                         break;
                     case KeyEvent.VK_W:
-                        tank1.y -= speed * Math.cos(Math.toRadians(tank1.angle));
-                        tank1.x += speed * Math.sin(Math.toRadians(tank1.angle));
+                        if (this.equals(tank1)) tank1.pressedKeys[2] = true;
                         break;
                     case KeyEvent.VK_S:
-                        tank1.y += speed * Math.cos(Math.toRadians(tank1.angle));
-                        tank1.x -= speed * Math.sin(Math.toRadians(tank1.angle));
+                        if (this.equals(tank1)) tank1.pressedKeys[3] = true;
                         break;
                     case KeyEvent.VK_ESCAPE:
                         System.exit(0);
                         break;
                     case KeyEvent.VK_SPACE:
-                        if (this.equals(tank1)) {
-                            fire = new Bullet(bullet, tank1.x + (tank1.width / 2), tank1.y + (tank1.height / 2), (int) (tank1.speed * Math.sin(Math.toRadians(tank1.angle))),
-                                    (int) (tank1.speed * Math.cos(Math.toRadians(tank1.angle))), tank1.angle);
-                            fire.setOwnedBy("m1");
-                            bulletsList.add(fire);
-                        }
+                        if (this.equals(tank1)) tank1.pressedKeys[4] = true;
                         break;
                     case KeyEvent.VK_ENTER:
-                        if (this.equals(tank2)) {
-                            fire = new Bullet(bullet, tank2.x + (tank2.width / 2), tank2.y + (tank2.height / 2), (int) (tank2.speed * Math.sin(Math.toRadians(tank2.angle))),
-                                    (int) (tank2.speed * Math.cos(Math.toRadians(tank2.angle))), tank2.angle);
-                            fire.setOwnedBy("m2");
-                            bulletsList.add(fire);
-                        }
+                        if (this.equals(tank2)) tank2.pressedKeys[4] = true;
                         break;
                     default:
                         break;
@@ -346,6 +367,42 @@ public class TankGame extends JPanel implements Runnable {
                         tank2.isExploded = true;
                         boom2.play();
                     }
+                }
+            } else if (gameEvent.type == 3) {
+                KeyEvent keyEvent = (KeyEvent) gameEvent.event;
+                switch (keyEvent.getKeyCode()) {
+                    case KeyEvent.VK_LEFT:
+                        if (this.equals(tank2)) tank2.pressedKeys[0] = false;
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                        if (this.equals(tank2)) tank2.pressedKeys[1] = false;
+                        break;
+                    case KeyEvent.VK_UP:
+                        if (this.equals(tank2)) tank2.pressedKeys[2] = false;
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        if (this.equals(tank2)) tank2.pressedKeys[3] = false;
+                        break;
+                    case KeyEvent.VK_A:
+                        if (this.equals(tank1)) tank1.pressedKeys[0] = false;
+                        break;
+                    case KeyEvent.VK_D:
+                        if (this.equals(tank1)) tank1.pressedKeys[1] = false;
+                        break;
+                    case KeyEvent.VK_W:
+                        if (this.equals(tank1)) tank1.pressedKeys[2] = false;
+                        break;
+                    case KeyEvent.VK_S:
+                        if (this.equals(tank1)) tank1.pressedKeys[3] = false;
+                        break;
+                    case KeyEvent.VK_SPACE:
+                        if (this.equals(tank1)) tank1.pressedKeys[4] = false;
+                        break;
+                    case KeyEvent.VK_ENTER:
+                        if (this.equals(tank2)) tank2.pressedKeys[4] = false;
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -526,6 +583,7 @@ public class TankGame extends JPanel implements Runnable {
         mainJFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainJFrame.setVisible(true);
         mainJFrame.setResizable(false);
+        mainJFrame.setLocationRelativeTo(null); // Окно по центру экрана
         mainGame.start();
     }
 }
