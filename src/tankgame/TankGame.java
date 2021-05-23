@@ -27,10 +27,9 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.JApplet;
-import javax.swing.JFrame;
+import javax.swing.*;
 
-public class TankGame extends JApplet implements Runnable {
+public class TankGame extends JPanel implements Runnable {
 
     private Thread thread;
     Image miniMap, leftScreen, rightScreen;
@@ -59,7 +58,6 @@ public class TankGame extends JApplet implements Runnable {
     Enemy e2, e3;
     GameEvents gameEvents;
 
-    @Override
     public void init() {
 
         setFocusable(true);
@@ -496,7 +494,6 @@ public class TankGame extends JApplet implements Runnable {
         tempGraphics.drawImage(bufferedImg1, 0, 0, this);
     }
 
-    @Override
     public void start() {
         thread = new Thread(this);
         thread.setPriority(Thread.MIN_PRIORITY);
@@ -520,10 +517,13 @@ public class TankGame extends JApplet implements Runnable {
         final TankGame mainGame = new TankGame();
         mainGame.init();
         JFrame mainJFrame = new JFrame("CrazyTanks");
+        ImageIcon img = new ImageIcon(System.getProperty("user.dir") + "/Resources/BonusItem.png");
+        mainJFrame.setIconImage(img.getImage());
         mainJFrame.addWindowListener(new WindowAdapter() {});
         mainJFrame.getContentPane().add("Center", mainGame);
         mainJFrame.pack();
         mainJFrame.setSize(new Dimension(1610, 930));
+        mainJFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainJFrame.setVisible(true);
         mainJFrame.setResizable(false);
         mainGame.start();
