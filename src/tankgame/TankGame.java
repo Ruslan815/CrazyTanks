@@ -27,7 +27,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 
 public class TankGame extends JPanel implements Runnable {
-
+    
     private Thread thread;
     Image miniMap, leftScreen, rightScreen;
     Image backgroundImage, bullet;
@@ -275,14 +275,34 @@ public class TankGame extends JPanel implements Runnable {
         public void moveTank() {
             if (this.pressedKeys[0]) this.angle -= 5;
             if (this.pressedKeys[1]) this.angle += 5;
+
             if (this.pressedKeys[2]) {
-                this.y -= this.speed * Math.cos(Math.toRadians(this.angle));
-                this.x += this.speed * Math.sin(Math.toRadians(this.angle));
+                int dx = 0;
+                int dy = 0;
+                dy -= this.speed * Math.cos(Math.toRadians(this.angle));
+                dx += this.speed * Math.sin(Math.toRadians(this.angle));
+                if (this.equals(tank1) && !tank2.collision(this.x + dx, this.y + dy, this.width, this.height)) {
+                    this.y += dy;
+                    this.x += dx;
+                } else if (this.equals(tank2) && !tank1.collision(this.x + dx, this.y + dy, this.width, this.height)) {
+                    this.y += dy;
+                    this.x += dx;
+                }
             }
             if (this.pressedKeys[3]) {
-                this.y += this.speed * Math.cos(Math.toRadians(this.angle));
-                this.x -= this.speed * Math.sin(Math.toRadians(this.angle));
+                int dx = 0;
+                int dy = 0;
+                dy += this.speed * Math.cos(Math.toRadians(this.angle));
+                dx -= this.speed * Math.sin(Math.toRadians(this.angle));
+                if (this.equals(tank1) && !tank2.collision(this.x + dx, this.y + dy, this.width, this.height)) {
+                    this.y += dy;
+                    this.x += dx;
+                } else if (this.equals(tank2) && !tank1.collision(this.x + dx, this.y + dy, this.width, this.height)) {
+                    this.y += dy;
+                    this.x += dx;
+                }
             }
+
             if (this.pressedKeys[4]) {
                 long currTime = new Date().getTime();
                 if (this.equals(tank1) && (currTime - tank1.lastShot) < 500) {
