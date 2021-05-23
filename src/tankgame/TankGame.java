@@ -45,7 +45,7 @@ public class TankGame extends JApplet implements Runnable {
     int fireCounter1, fireCounter2, fireCounter3;
     Random rand = new Random(777);
     Wall[][] layout = new Wall[28][50];
-    Tank m1, m2;
+    Tank tank1, tank2;
     Bullet fire;
     Explosion explode1, explode2;
     Sound backgroundMusic, boom1, boom2, gameOver;
@@ -131,11 +131,11 @@ public class TankGame extends JApplet implements Runnable {
             }
 
             // Init wall arrays
-            m1 = new Tank(playerOne, 150, 400, 5, 90);
-            m2 = new Tank(playerTwo, 1485, 400, 5, 270);
+            tank1 = new Tank(playerOne, 150, 400, 5, 90);
+            tank2 = new Tank(playerTwo, 1485, 400, 5, 270);
             gameEvents = new GameEvents();
-            gameEvents.addObserver(m1);
-            gameEvents.addObserver(m2);
+            gameEvents.addObserver(tank1);
+            gameEvents.addObserver(tank2);
             KeyControl key = new KeyControl(this);
             addKeyListener(key);
         } catch (IOException e) {
@@ -186,7 +186,7 @@ public class TankGame extends JApplet implements Runnable {
             if (this.show) {
                 this.x += this.bx;
                 this.y -= this.by;
-            } else if (!show) {
+            } else {
                 this.x = this.bx;
                 this.y = this.by;
                 boom1.flush();
@@ -202,7 +202,7 @@ public class TankGame extends JApplet implements Runnable {
             }
 
             // player 2 попал в player 1
-            if (this.collision(m1.x, m1.y, m1.width, m1.height) && "m2".equals(this.getOwnedBy()) && this.show && this != null) {
+            if (this.collision(tank1.x, tank1.y, tank1.width, tank1.height) && "m2".equals(this.getOwnedBy()) && this.show && this != null) {
                 gameEvents.setValue("m1_collision");
                 score2 += 50;
                 explode1 = new Explosion("/Resources/explosion1_", 6, this.x, this.y, TankGame.this);
@@ -212,7 +212,7 @@ public class TankGame extends JApplet implements Runnable {
             }
 
             // player 1 попал в player 2
-            if (this.collision(m2.x, m2.y, m2.width, m2.height) && "m1".equals(this.getOwnedBy()) && this.show && this != null) {
+            if (this.collision(tank2.x, tank2.y, tank2.width, tank2.height) && "m1".equals(this.getOwnedBy()) && this.show && this != null) {
                 gameEvents.setValue("m2_collision");
                 score1 += 50;
                 explode1 = new Explosion("/Resources/explosion1_", 6, this.x, this.y, TankGame.this);
@@ -278,48 +278,48 @@ public class TankGame extends JApplet implements Runnable {
                 KeyEvent keyEvent = (KeyEvent) gameEvent.event;
                 switch (keyEvent.getKeyCode()) {
                     case KeyEvent.VK_LEFT:
-                        if (this.equals(m2)) m2.angle -= 15;
+                        if (this.equals(tank2)) tank2.angle -= 15;
                         break;
                     case KeyEvent.VK_RIGHT:
-                        if (this.equals(m2)) m2.angle += 15;
+                        if (this.equals(tank2)) tank2.angle += 15;
                         break;
                     case KeyEvent.VK_UP:
-                        m2.y -= speed * Math.cos(Math.toRadians(m2.angle));
-                        m2.x += speed * Math.sin(Math.toRadians(m2.angle));
+                        tank2.y -= speed * Math.cos(Math.toRadians(tank2.angle));
+                        tank2.x += speed * Math.sin(Math.toRadians(tank2.angle));
                         break;
                     case KeyEvent.VK_DOWN:
-                        m2.y += speed * Math.cos(Math.toRadians(m2.angle));
-                        m2.x -= speed * Math.sin(Math.toRadians(m2.angle));
+                        tank2.y += speed * Math.cos(Math.toRadians(tank2.angle));
+                        tank2.x -= speed * Math.sin(Math.toRadians(tank2.angle));
                         break;
                     case KeyEvent.VK_A:
-                        if (this.equals(m1)) m1.angle -= 15;
+                        if (this.equals(tank1)) tank1.angle -= 15;
                         break;
                     case KeyEvent.VK_D:
-                        if (this.equals(m1)) m1.angle += 15;
+                        if (this.equals(tank1)) tank1.angle += 15;
                         break;
                     case KeyEvent.VK_W:
-                        m1.y -= speed * Math.cos(Math.toRadians(m1.angle));
-                        m1.x += speed * Math.sin(Math.toRadians(m1.angle));
+                        tank1.y -= speed * Math.cos(Math.toRadians(tank1.angle));
+                        tank1.x += speed * Math.sin(Math.toRadians(tank1.angle));
                         break;
                     case KeyEvent.VK_S:
-                        m1.y += speed * Math.cos(Math.toRadians(m1.angle));
-                        m1.x -= speed * Math.sin(Math.toRadians(m1.angle));
+                        tank1.y += speed * Math.cos(Math.toRadians(tank1.angle));
+                        tank1.x -= speed * Math.sin(Math.toRadians(tank1.angle));
                         break;
                     case KeyEvent.VK_ESCAPE:
                         System.exit(0);
                         break;
                     case KeyEvent.VK_SPACE:
-                        if (this.equals(m1)) {
-                            fire = new Bullet(bullet, m1.x + (m1.width / 2), m1.y + (m1.height / 2), (int) (m1.speed * Math.sin(Math.toRadians(m1.angle))),
-                                    (int) (m1.speed * Math.cos(Math.toRadians(m1.angle))), m1.angle);
+                        if (this.equals(tank1)) {
+                            fire = new Bullet(bullet, tank1.x + (tank1.width / 2), tank1.y + (tank1.height / 2), (int) (tank1.speed * Math.sin(Math.toRadians(tank1.angle))),
+                                    (int) (tank1.speed * Math.cos(Math.toRadians(tank1.angle))), tank1.angle);
                             fire.setOwnedBy("m1");
                             bulletsList.add(fire);
                         }
                         break;
                     case KeyEvent.VK_ENTER:
-                        if (this.equals(m2)) {
-                            fire = new Bullet(bullet, m2.x + (m2.width / 2), m2.y + (m2.height / 2), (int) (m2.speed * Math.sin(Math.toRadians(m2.angle))),
-                                    (int) (m2.speed * Math.cos(Math.toRadians(m2.angle))), m2.angle);
+                        if (this.equals(tank2)) {
+                            fire = new Bullet(bullet, tank2.x + (tank2.width / 2), tank2.y + (tank2.height / 2), (int) (tank2.speed * Math.sin(Math.toRadians(tank2.angle))),
+                                    (int) (tank2.speed * Math.cos(Math.toRadians(tank2.angle))), tank2.angle);
                             fire.setOwnedBy("m2");
                             bulletsList.add(fire);
                         }
@@ -329,23 +329,23 @@ public class TankGame extends JApplet implements Runnable {
                 }
             } else if (gameEvent.type == 2) {
                 String msg = (String) gameEvent.event;
-                if (msg.equals("m1_collision") && this.equals(m1)) {
-                    m1.health -= 25;
+                if (msg.equals("m1_collision") && this.equals(tank1)) {
+                    tank1.health -= 25;
                     healthBar1.updateIncrement();
                     if (health > 0) boom1.play();
-                    System.out.println("Player 1 health updated to: " + m1.health);
-                    if (m1.health == 0) {
-                        m1.isExploded = true;
+                    System.out.println("Player 1 health updated to: " + tank1.health);
+                    if (tank1.health == 0) {
+                        tank1.isExploded = true;
                         boom2.play();
                     }
                 }
-                if (msg.equals("m2_collision") && this.equals(m2)) {
-                    m2.health -= 25;
+                if (msg.equals("m2_collision") && this.equals(tank2)) {
+                    tank2.health -= 25;
                     healthBar2.updateIncrement();
                     if (health > 0) boom1.play();
-                    System.out.println("Player 2 health updated to: " + m2.health);
-                    if (m2.health == 0) {
-                        m2.isExploded = true;
+                    System.out.println("Player 2 health updated to: " + tank2.health);
+                    if (tank2.health == 0) {
+                        tank2.isExploded = true;
                         boom2.play();
                     }
                 }
@@ -380,14 +380,15 @@ public class TankGame extends JApplet implements Runnable {
 
         // update explosion frames to advance animation
         if (explode1 != null && explode1.frameNumber < explode1.framesCount) explode1.updateIncrement();
+        if (explode2 != null && explode2.frameNumber < explode2.framesCount) explode2.updateIncrement();
 
         for (Wall[] tempWallArray : layout)
             for (Wall tempWall : tempWallArray)
                 if (tempWall != null) tempWall.draw(this);
 
         // draw tanks while health > 0
-        if (!m1.isExploded) m1.draw(this);
-        if (!m2.isExploded) m2.draw(this);
+        if (!tank1.isExploded) tank1.draw(this);
+        if (!tank2.isExploded) tank2.draw(this);
 
         // draw bullets
         for (Bullet tempBullet : bulletsList)
@@ -397,31 +398,29 @@ public class TankGame extends JApplet implements Runnable {
         });*/
 
         // remove tanks from screen upon death
-        if (m1.isExploded) {
-            explode2 = new Explosion("/Resources/explosion2_", 7, m1.x, m1.y, this);
-            m1.y = -100;
+        if (tank1.isExploded) {
+            explode2 = new Explosion("/Resources/explosion2_", 7, tank1.x, tank1.y, this);
+            tank1.y = -100;
         }
-        if (m2.isExploded) {
-            explode2 = new Explosion("/Resources/explosion2_", 7, m2.x, m2.y, this);
-            m2.y = -100;
+        if (tank2.isExploded) {
+            explode2 = new Explosion("/Resources/explosion2_", 7, tank2.x, tank2.y, this);
+            tank2.y = -100;
         }
 
         // draw explosion frame
         if (explode1 != null && explode1.frameNumber < explode1.framesCount) {
-            //System.out.println("Draw explosion.");
             explode1.draw(this);
         }
         if (explode2 != null && explode2.frameNumber < explode2.framesCount) {
-            //System.out.println("Draw explosion.");
             explode2.draw(this);
         }
 
         // Вычисление границ двух экранов игроков
         int x1, y1, x2, y2, width, height;
-        x1 = m1.x - 120;
-        y1 = m1.y - 300;
-        x2 = m2.x - 120;
-        y2 = m2.y - 300;
+        x1 = tank1.x - 120;
+        y1 = tank1.y - 300;
+        x2 = tank2.x - 120;
+        y2 = tank2.y - 300;
         width = 500;
         height = 600;
         if (x1 < 0) x1 = 0;
@@ -464,21 +463,20 @@ public class TankGame extends JApplet implements Runnable {
         healthBar2.draw(this);
 
         // if a player dies, display game over logo and final score
-        if (m1.isExploded || m2.isExploded) {
-            m1.isExploded = true;
-            m2.isExploded = true;
-            m1.speed = 0;
-            m2.speed = 0;
+        if (tank1.isExploded || tank2.isExploded) {
+            tank1.isExploded = true;
+            tank2.isExploded = true;
+            tank1.speed = 0;
+            tank2.speed = 0;
             game_over.draw(this);
             g2.setFont(new Font("Arial", Font.BOLD, 20));
-            g2.setColor(Color.WHITE);
-            g2.drawString("SCORE", 800, 125);
+            g2.setColor(Color.CYAN);
+            g2.drawString("ОЧКИ", 850, 125);
             g2.setFont(new Font("Arial", Font.BOLD, 15));
-            g2.drawString("Player 1", 750, 150);
+            g2.drawString("Игрок 1", 750, 150);
             g2.drawString(Integer.toString(score1), 960, 150);
-            g2.drawString("Player 2", 750, 180);
+            g2.drawString("Игрок 2", 750, 180);
             g2.drawString(Integer.toString(score2), 960, 180);
-
         }
     }
 
@@ -521,7 +519,7 @@ public class TankGame extends JApplet implements Runnable {
     public static void main(String[] argv) {
         final TankGame mainGame = new TankGame();
         mainGame.init();
-        JFrame mainJFrame = new JFrame("TankGame2");
+        JFrame mainJFrame = new JFrame("CrazyTanks");
         mainJFrame.addWindowListener(new WindowAdapter() {});
         mainJFrame.getContentPane().add("Center", mainGame);
         mainJFrame.pack();

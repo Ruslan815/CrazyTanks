@@ -32,46 +32,46 @@ public class Wall {
     }
 
     public void update() throws IOException, MalformedURLException, LineUnavailableException, UnsupportedAudioFileException {
-        if (outer.m1.collision(x, y, sizeX, sizeY)) {
+        if (outer.tank1.collision(x, y, sizeX, sizeY)) {
             show = true;
-            outer.m1.speed = -5;
-            if (outer.m1.x < this.x - 5) {
-                outer.m1.x -= 5;
+            outer.tank1.speed = -5;
+            if (outer.tank1.x < this.x - 5) {
+                outer.tank1.x -= 5;
             } else {
-                outer.m1.x += 5;
+                outer.tank1.x += 5;
             }
-            if (outer.m1.y < this.y - 5) {
-                outer.m1.y -= 5;
+            if (outer.tank1.y < this.y - 5) {
+                outer.tank1.y -= 5;
             } else {
-                outer.m1.y += 5;
+                outer.tank1.y += 5;
             }
-            outer.m1.speed = 5;
+            outer.tank1.speed = 5;
 
             if (this.blockName != null && this.blockName.equals("health")) {
-                outer.m1.health += 25;
+                outer.tank1.health += 25;
                 outer.healthBar1.updateDecrement();
                 System.out.println("Player 1 picked up health.");
                 this.show = false;
                 this.y = -100;
             }
         }
-        if (outer.m2.collision(x, y, sizeX, sizeY)) {
+        if (outer.tank2.collision(x, y, sizeX, sizeY)) {
             show = true;
-            outer.m2.speed = -5;
-            if (outer.m2.x < this.x - 5) {
-                outer.m2.x -= 5;
+            outer.tank2.speed = -5;
+            if (outer.tank2.x < this.x - 5) {
+                outer.tank2.x -= 5;
             } else {
-                outer.m2.x += 5;
+                outer.tank2.x += 5;
             }
-            if (outer.m2.y < this.y - 5) {
-                outer.m2.y -= 5;
+            if (outer.tank2.y < this.y - 5) {
+                outer.tank2.y -= 5;
             } else {
-                outer.m2.y += 5;
+                outer.tank2.y += 5;
             }
-            outer.m2.speed = 5;
+            outer.tank2.speed = 5;
 
             if (this.blockName != null && this.blockName.equals("health")) {
-                outer.m2.health += 25;
+                outer.tank2.health += 25;
                 outer.healthBar2.updateDecrement();
                 System.out.println("Player 2 picked up health.");
                 this.show = false;

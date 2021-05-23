@@ -21,7 +21,6 @@ public class Explosion extends TankGame {
         frames = new Image[framesCount];
         path = path + name;
 
-        // TODO Переименовать картинки со взрывами с нулевого индекса
         // load individual frames of explosion animation
         for (int i = 1; i <= framesCount; i++) {
             frames[i - 1] = ImageIO.read(new File(path + i + ".png"));           
