@@ -87,7 +87,7 @@ public class Wall {
                     String bulletOwner = tempBullet.getOwnedBy();
                     if (bulletOwner.equals("tank1") || bulletOwner.equals("tank2")) {
                         tempBullet.show = false;
-                        outer.explode1 = new Explosion("/Resources/explosion1_", 6, tempBullet.x, tempBullet.y, outer);
+                        outer.explode1 = new Explosion("/resources/explosion1_", 6, tempBullet.x, tempBullet.y, outer);
                         if (this.breakable) {
                             this.show = false;
                             this.y = -100;
