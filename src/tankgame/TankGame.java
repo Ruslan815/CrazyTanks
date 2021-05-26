@@ -1,13 +1,8 @@
 package tankgame;
 
-import java.awt.AWTException;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Rectangle;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.geom.AffineTransform;
@@ -38,6 +33,9 @@ public class TankGame extends JPanel implements Runnable {
     int speed = 1, move = 0;
     int score1 = 0;
     int score2 = 0;
+    static int selectedMapNumber = 0;
+    static JFrame currentJFrame, currentMenu;
+    static JPanel currentMainGame;
     int fireCounter1, fireCounter2, fireCounter3;
     Random rand = new Random(777);
     Wall[][] layout = new Wall[28][50];
@@ -81,7 +79,12 @@ public class TankGame extends JPanel implements Runnable {
 
             game_over = new HUDelement("/resources/GameOver", 1, 745, 80, this);
 
-            File layoutFile = new File(path + "resources/map_layout");
+            File layoutFile = new File(path + "resources/map_layout1");
+            if (TankGame.selectedMapNumber == 0) {
+                System.exit(0);
+            } else {
+                layoutFile = new File(path + "resources/map_layout" + TankGame.selectedMapNumber);
+            }
             BufferedReader reader = new BufferedReader(new FileReader(layoutFile));
             String layoutStream;
 
@@ -120,7 +123,7 @@ public class TankGame extends JPanel implements Runnable {
             // Подключаем музыку
             try {
                 backgroundMusic = new Sound("/resources/nirvana.wav", true);
-                //TODO backgroundMusic.play();
+                backgroundMusic.play();
                 boom1 = new Sound("/resources/SoundExplosion1.wav", false);
                 boom2 = new Sound("/resources/SoundExplosion2.wav", false);
             } catch (MalformedURLException | LineUnavailableException | UnsupportedAudioFileException ex) {
@@ -357,7 +360,11 @@ public class TankGame extends JPanel implements Runnable {
                         if (this.equals(tank1)) tank1.pressedKeys[3] = true;
                         break;
                     case KeyEvent.VK_ESCAPE:
-                        System.exit(0);
+                        backgroundMusic.stop();
+                        TankGame.currentJFrame.remove(currentMainGame);
+                        TankGame.currentJFrame.dispose();
+                        System.gc();
+                        currentMenu.setVisible(true);
                         break;
                     case KeyEvent.VK_SPACE:
                         if (this.equals(tank1)) tank1.pressedKeys[4] = true;
@@ -590,10 +597,13 @@ public class TankGame extends JPanel implements Runnable {
         }
     }
 
-    public static void main(String[] argv) {
+    public static void startMainFrame() {
+        // Main Frame
         final TankGame mainGame = new TankGame();
         mainGame.init();
         JFrame mainJFrame = new JFrame("CrazyTanks");
+        TankGame.currentJFrame = mainJFrame;
+        TankGame.currentMainGame = mainGame;
         ImageIcon img = new ImageIcon(System.getProperty("user.dir") + "/resources/BonusItem.png");
         mainJFrame.setIconImage(img.getImage());
         mainJFrame.addWindowListener(new WindowAdapter() {});
@@ -601,16 +611,98 @@ public class TankGame extends JPanel implements Runnable {
         mainJFrame.pack();
         mainJFrame.setSize(new Dimension(1610, 930));
         mainJFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainJFrame.setVisible(true);
+        SwingUtilities.invokeLater(() -> mainJFrame.setVisible(true));
         mainJFrame.setResizable(false);
         mainJFrame.setLocationRelativeTo(null); // Окно по центру экрана
         mainGame.start();
+    }
 
+    public static void buttonActionPerformed(ActionEvent evt) {
+        switch (evt.getActionCommand()) {
+            case "Карта №1":
+                TankGame.selectedMapNumber = 1;
+                startMainFrame();
+                currentMenu.setVisible(false);
+                break;
+            case "Карта №2":
+                TankGame.selectedMapNumber = 2;
+                startMainFrame();
+                currentMenu.setVisible(false);
+                break;
+            case "Карта №3":
+                TankGame.selectedMapNumber = 3;
+                startMainFrame();
+                currentMenu.setVisible(false);
+                break;
+            case "Выйти":
+                System.exit(0);
+                break;
+        }
+    }
+
+    public static void startMenuFrame() {
         // Menu Frame
-        /*JFrame menuJFrame = new JFrame("Menu");
-        menuJFrame.setSize(new Dimension(300, 300));
+        JFrame menuJFrame = new JFrame("CrazyTanks");
+        TankGame.currentMenu = menuJFrame;
+        menuJFrame.setSize(new Dimension(250, 250));
         menuJFrame.setLocationRelativeTo(null);
         menuJFrame.setResizable(false);
-        menuJFrame.setVisible(true);*/
+        menuJFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        ImageIcon img = new ImageIcon(System.getProperty("user.dir") + "/resources/BonusItem.png");
+        menuJFrame.setIconImage(img.getImage());
+
+        JLabel menuLabel = new JLabel("ГЛАВНОЕ МЕНЮ");
+        JLabel mapLabel = new JLabel("Выберите карту для игры:");
+        JLabel emptyLabel1 = new JLabel("\n");
+        JLabel emptyLabel2 = new JLabel("\n");
+        JButton buttonMap1 = new JButton("Карта №1");
+        JButton buttonMap2 = new JButton("Карта №2");
+        JButton buttonMap3 = new JButton("Карта №3");
+        JButton buttonExit = new JButton("Выйти");
+        menuJFrame.setLayout(new BoxLayout(menuJFrame.getContentPane(), BoxLayout.Y_AXIS));
+        menuJFrame.getContentPane().setBackground(new Color(110, 29, 255));
+
+        menuJFrame.add(menuLabel);
+        menuJFrame.add(emptyLabel1);
+        menuJFrame.add(mapLabel);
+        menuJFrame.add(buttonMap1);
+        menuJFrame.add(buttonMap2);
+        menuJFrame.add(buttonMap3);
+        menuJFrame.add(emptyLabel2);
+        menuJFrame.add(buttonExit);
+
+        menuLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mapLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        buttonMap1.setAlignmentX(Component.CENTER_ALIGNMENT);
+        buttonMap2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        buttonMap3.setAlignmentX(Component.CENTER_ALIGNMENT);
+        buttonExit.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        mapLabel.setForeground(new Color(0, 180, 159));
+        menuLabel.setForeground(new Color(0, 180, 159));
+        buttonMap1.setBackground(new Color(0, 170, 0));
+        buttonMap2.setBackground(new Color(248, 170, 0));
+        buttonMap3.setBackground(new Color(230, 13, 12));
+        buttonMap1.setForeground(new Color(73, 29, 167));
+        buttonMap2.setForeground(new Color(73, 29, 167));
+        buttonMap3.setForeground(new Color(73, 29, 167));
+
+        mapLabel.setFont(new java.awt.Font("Arial", Font.BOLD, 14));
+        menuLabel.setFont(new java.awt.Font("Arial", Font.BOLD, 14));
+        buttonMap1.setFont(new java.awt.Font("Arial", Font.BOLD, 14));
+        buttonMap2.setFont(new java.awt.Font("Arial", Font.BOLD, 14));
+        buttonMap3.setFont(new java.awt.Font("Arial", Font.BOLD, 14));
+        buttonExit.setFont(new java.awt.Font("Arial", Font.BOLD, 14));
+
+        buttonMap1.addActionListener(TankGame::buttonActionPerformed);
+        buttonMap2.addActionListener(TankGame::buttonActionPerformed);
+        buttonMap3.addActionListener(TankGame::buttonActionPerformed);
+        buttonExit.addActionListener(TankGame::buttonActionPerformed);
+
+        SwingUtilities.invokeLater(() -> menuJFrame.setVisible(true));
+    }
+
+    public static void main(String[] argv) {
+        startMenuFrame();
     }
 }

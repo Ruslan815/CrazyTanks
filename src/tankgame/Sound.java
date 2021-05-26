@@ -30,6 +30,10 @@ public class Sound {
         }
     }
 
+    public void stop() {
+        clip.stop();
+    }
+
     public void flush() {
         clip.flush();
     }
