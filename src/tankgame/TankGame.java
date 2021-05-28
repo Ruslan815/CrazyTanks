@@ -2,7 +2,6 @@ package tankgame;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.geom.AffineTransform;
@@ -27,30 +26,28 @@ public class TankGame extends JPanel implements Runnable {
     Image miniMap, leftScreen, rightScreen;
     Image backgroundImage, bullet;
     Image playerOne, playerTwo;
-    Image bonusItem;
+    Image bonusItem, enemy;
     private BufferedImage bufferedImg1;
     Graphics2D g2;
-    int speed = 1, move = 0;
     int score1 = 0;
     int score2 = 0;
     static int selectedMapNumber = 0;
     static JFrame currentJFrame, currentMenu;
     static JPanel currentMainGame;
-    int fireCounter1, fireCounter2, fireCounter3;
     Random rand = new Random(777);
     Wall[][] layout = new Wall[28][50];
-    Tank tank1, tank2; //TODO , tank777;
+    Tank tank1, tank2;
     Bullet newTempBullet;
     Explosion explode1, explode2;
-    Sound backgroundMusic, boom1, boom2, gameOver;
+    Sound backgroundMusic, boom1, boom2;
 
     // declare HUD elements
-    HUDelement healthBar1, healthBar2, healthLabel1, healthLabel2, score_1, score_2, scoreLabel1, scoreLabel2, game_over;
+    HUDelement healthBar1, healthBar2, game_over;
 
     ArrayList<Bullet> bulletsList = new ArrayList<Bullet>();
     int w = 1610, h = 930; // fixed size window game 
-    Enemy e1;
-    Enemy e2, e3;
+    int enemyCount = 5;
+    Enemy[] enemies;
     GameEvents gameEvents;
 
     public void init() {
@@ -71,6 +68,7 @@ public class TankGame extends JPanel implements Runnable {
             playerOne = ImageIO.read(new File(path + "resources/TankBlueBasic60/Tank_blue_basic_16.png"));
             playerTwo = ImageIO.read(new File(path + "resources/TankRedBasic60/Tank_red_basic_16.png"));
             bonusItem = ImageIO.read(new File(path + "resources/BonusItem.png"));
+            enemy = ImageIO.read(new File(path + "resources/enemy.png"));
 
             healthBar1 = new HUDelement("/resources/health", 6, 75, 820, this);
             healthBar2 = new HUDelement("/resources/health", 6, 1450, 820, this);
@@ -133,7 +131,10 @@ public class TankGame extends JPanel implements Runnable {
             // Init observers
             tank1 = new Tank(playerOne, 150, 400, 5, 90);
             tank2 = new Tank(playerTwo, 1485, 400, 5, 270);
-            //TODO tank777 = new Tank(playerOne, 150, 600, 5, 0);
+            enemies = new Enemy[enemyCount];
+            for (int enemyCounter = 0; enemyCounter < enemyCount; enemyCounter++) {
+                enemies[enemyCounter] = new Enemy(enemy, 2, rand, this);
+            }
             gameEvents = new GameEvents();
             gameEvents.addObserver(tank1);
             gameEvents.addObserver(tank2);
@@ -461,6 +462,9 @@ public class TankGame extends JPanel implements Runnable {
         for (int i = 0; i < bulletsList.size(); i++)
             bulletsList.get(i).update(i);
 
+        for (Enemy tempEnemy: enemies)
+            if (tempEnemy.show) tempEnemy.update();
+
         // update explosion frames to advance animation
         if (explode1 != null && explode1.frameNumber < explode1.framesCount) explode1.updateIncrement();
         if (explode2 != null && explode2.frameNumber < explode2.framesCount) explode2.updateIncrement();
@@ -472,7 +476,8 @@ public class TankGame extends JPanel implements Runnable {
         // draw tanks while health > 0
         if (!tank1.isExploded) tank1.draw(this);
         if (!tank2.isExploded) tank2.draw(this);
-        //TODO if (!tank777.isExploded) tank777.draw(this);
+        for (Enemy tempEnemy: enemies)
+            if (tempEnemy.show) tempEnemy.draw(this);
 
         // draw bullets
         for (Bullet tempBullet : bulletsList)
@@ -646,7 +651,7 @@ public class TankGame extends JPanel implements Runnable {
         menuJFrame.setSize(new Dimension(250, 250));
         menuJFrame.setLocationRelativeTo(null);
         menuJFrame.setResizable(false);
-        menuJFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        menuJFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         ImageIcon img = new ImageIcon(System.getProperty("user.dir") + "/resources/BonusItem.png");
         menuJFrame.setIconImage(img.getImage());
 

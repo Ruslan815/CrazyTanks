@@ -33,20 +33,6 @@ public class Wall {
 
     public void update() throws IOException, MalformedURLException, LineUnavailableException, UnsupportedAudioFileException {
         if (outer.tank1.collision(x, y, sizeX, sizeY)) {
-            show = true;
-            outer.tank1.speed = -5;
-            if (outer.tank1.x < this.x - 5) {
-                outer.tank1.x -= 5;
-            } else {
-                outer.tank1.x += 5;
-            }
-            if (outer.tank1.y < this.y - 5) {
-                outer.tank1.y -= 5;
-            } else {
-                outer.tank1.y += 5;
-            }
-            outer.tank1.speed = 5;
-
             if (this.blockName != null && this.blockName.equals("health")) {
                 if (outer.tank1.health <= 100) {
                     outer.tank1.health += 25;
@@ -54,23 +40,23 @@ public class Wall {
                 }
                 this.show = false;
                 this.y = -100;
+            } else {
+                show = true;
+                outer.tank1.speed = -5;
+                if (outer.tank1.x < this.x - 5) {
+                    outer.tank1.x -= 5;
+                } else {
+                    outer.tank1.x += 5;
+                }
+                if (outer.tank1.y < this.y - 5) {
+                    outer.tank1.y -= 5;
+                } else {
+                    outer.tank1.y += 5;
+                }
+                outer.tank1.speed = 5;
             }
         }
         if (outer.tank2.collision(x, y, sizeX, sizeY)) {
-            show = true;
-            outer.tank2.speed = -5;
-            if (outer.tank2.x < this.x - 5) {
-                outer.tank2.x -= 5;
-            } else {
-                outer.tank2.x += 5;
-            }
-            if (outer.tank2.y < this.y - 5) {
-                outer.tank2.y -= 5;
-            } else {
-                outer.tank2.y += 5;
-            }
-            outer.tank2.speed = 5;
-
             if (this.blockName != null && this.blockName.equals("health")) {
                 if (outer.tank2.health <= 100) {
                     outer.tank2.health += 25;
@@ -78,6 +64,39 @@ public class Wall {
                 }
                 this.show = false;
                 this.y = -100;
+            } else {
+                show = true;
+                outer.tank2.speed = -5;
+                if (outer.tank2.x < this.x - 5) {
+                    outer.tank2.x -= 5;
+                } else {
+                    outer.tank2.x += 5;
+                }
+                if (outer.tank2.y < this.y - 5) {
+                    outer.tank2.y -= 5;
+                } else {
+                    outer.tank2.y += 5;
+                }
+                outer.tank2.speed = 5;
+            }
+        }
+
+        for (Enemy tempEnemy: outer.enemies) {
+            if (tempEnemy.collision(x, y, sizeX, sizeY) && !this.blockName.equals("health")) {
+                show = true;
+                tempEnemy.isColliding = true;
+                tempEnemy.speed = -2;
+                if (tempEnemy.x < this.x - 1) {
+                    tempEnemy.x -= 1;
+                } else {
+                    tempEnemy.x += 1;
+                }
+                if (tempEnemy.y < this.y - 1) {
+                    tempEnemy.y -= 1;
+                } else {
+                    tempEnemy.y += 1;
+                }
+                tempEnemy.speed = 2;
             }
         }
 

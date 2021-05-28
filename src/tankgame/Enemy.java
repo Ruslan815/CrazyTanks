@@ -5,11 +5,12 @@ import java.awt.Rectangle;
 import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Date;
 import java.util.Random;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-public class Enemy {/*
+public class Enemy {
     Image img;
     int x;
     int y;
@@ -20,18 +21,27 @@ public class Enemy {/*
     Rectangle bbox;
     boolean show;
     private final TankGame outer;
+    boolean isColliding = false;
+    int lastDirection = 0;
+    long lastChangedDirectionTime;
 
     Enemy(Image img, int speed, Random rand, final TankGame outer) {
         this.outer = outer;
         this.img = img;
-        this.x = Math.abs(rand.nextInt() % (600 - 30));
-        this.y = 120;
-        this.speed = speed;
         this.rand = rand;
+        int tempX = Math.abs(rand.nextInt()) % 1500 + 50;
+        int tempY = Math.abs(rand.nextInt()) % 880 + 50;
+        while (isColliding(tempX, tempY)) {
+            tempX = Math.abs(rand.nextInt()) % 1500 + 50;
+            tempY = Math.abs(rand.nextInt()) % 880 + 50;
+        }
+        this.x = tempX;
+        this.y = tempY;
+        this.speed = speed;
         this.show = true;
         sizeX = img.getWidth(null);
         sizeY = img.getHeight(null);
-        System.out.println("w:" + sizeX + " y:" + sizeY);
+        lastChangedDirectionTime = new Date().getTime();
     }
 
     public boolean collision(int x, int y, int w, int h) {
@@ -40,46 +50,99 @@ public class Enemy {/*
         return this.bbox.intersects(otherBBox);
     }
 
-    public Enemy getInstance() {
-        return this;
-    }
-
     public void update() throws IOException, InterruptedException, MalformedURLException, LineUnavailableException, UnsupportedAudioFileException {
-        y += speed;
-        if (outer.m1.collision(x, y, sizeX, sizeY)) {
+        if (isColliding) {
+            isColliding = false;
+            switch (lastDirection) { // Last direction
+                case 0: // Up
+                    lastDirection++;
+                    x += speed;
+                    break;
+                case 1: // Right
+                    lastDirection++;
+                    y += speed;
+                    break;
+                case 2: // Down
+                    lastDirection++;
+                    x -= speed;
+                    break;
+                case 3: // Left
+                    lastDirection = 0;
+                    y -= speed;
+                    break;
+                default:
+                    System.out.println("Unknown type of direction!");
+                    System.exit(-1);
+            }
+        } else {
+            long currTime = new Date().getTime();
+            if (currTime - lastChangedDirectionTime > 4000 && rand.nextBoolean()) {
+                lastChangedDirectionTime = currTime;
+                lastDirection = Math.abs(rand.nextInt()) % 4;
+            }
+            switch (lastDirection) { // Current direction
+                case 0: // Up
+                    y -= speed;
+                    break;
+                case 1: // Right
+                    x += speed;
+                    break;
+                case 2: // Down
+                    y += speed;
+                    break;
+                case 3: // Left
+                    x -= speed;
+                    break;
+                default:
+                    System.out.println("Unknown type of direction!");
+                    System.exit(-1);
+            }
+        }
+
+        if (outer.tank1.collision(x, y, sizeX, sizeY)) {
             show = false;
-            // You need to remove this one and increase score etc
-            outer.gameEvents.setValue("enemy");
-            outer.score1 += 50;
-            outer.explode1 = new Explosion("/Resources/explosion1_", 6, this.x, this.y, outer);
-            this.reset();
+            outer.tank1.health -= 25;
+            outer.healthBar1.updateIncrement();
+            if (outer.tank1.health > 0) outer.boom1.play();
+            System.out.println("Player 1 health updated to: " + outer.tank1.health);
+            if (outer.tank1.health == 0) {
+                outer.tank1.isExploded = true;
+                outer.boom1.play();
+            }
+            outer.explode1 = new Explosion("/resources/explosion1_", 6, this.x, this.y, outer);
+            this.respawn();
             show = true;
         }
-        if (outer.m2.collision(x, y, sizeX, sizeY)) {
+        if (outer.tank2.collision(x, y, sizeX, sizeY)) {
             show = false;
-            // You need to remove this one and increase score etc
-            outer.gameEvents.setValue("enemy");
-            outer.score2 += 50;
-            outer.explode1 = new Explosion("/Resources/explosion1_", 6, this.x, this.y, outer);
-            this.reset();
+            outer.tank2.health -= 25;
+            outer.healthBar2.updateIncrement();
+            if (outer.tank2.health > 0) outer.boom1.play();
+            System.out.println("Player 2 health updated to: " + outer.tank2.health);
+            if (outer.tank2.health == 0) {
+                outer.tank2.isExploded = true;
+                outer.boom2.play();
+            }
+            outer.explode1 = new Explosion("/resources/explosion1_", 6, this.x, this.y, outer);
+            this.respawn();
             show = true;
         }
-        if (outer.fire != null) {
-            if (this.collision(outer.fire.x, outer.fire.y, outer.fire.width, outer.fire.height)) {
-                switch (outer.fire.getOwnedBy()) {
-                    case "m1":
+        if (outer.newTempBullet != null) {
+            if (this.collision(outer.newTempBullet.x, outer.newTempBullet.y, outer.newTempBullet.width, outer.newTempBullet.height)) {
+                switch (outer.newTempBullet.getOwnedBy()) {
+                    case "tank1":
                         this.show = false;
                         outer.score1 += 100;
-                        outer.explode1 = new Explosion("/Resources/explosion1_", 6, this.x, this.y, outer);
+                        outer.explode1 = new Explosion("/resources/explosion1_", 6, this.x, this.y, outer);
                         outer.boom1.play();
-                        this.reset();
+                        this.respawn();
                         break;
-                    case "m2":
+                    case "tank2":
                         this.show = false;
                         outer.score2 += 100;
-                        outer.explode1 = new Explosion("/Resources/explosion1_", 6, this.x, this.y, outer);
+                        outer.explode1 = new Explosion("/resources/explosion1_", 6, this.x, this.y, outer);
                         outer.boom1.play();
-                        this.reset();
+                        this.respawn();
                         break;
                     default:
                         break;
@@ -87,16 +150,17 @@ public class Enemy {/*
                 show = true;
             }
         }
-        if (this.y >= 480) {
-            this.reset();
-        } else {
-            outer.gameEvents.setValue("");
-        }
     }
 
-    public void reset() {
-        this.x = Math.abs(outer.generator.nextInt() % (600 - 30));
-        this.y = -10;
+    public void respawn() {
+        int tempX = Math.abs(rand.nextInt()) % 1500 + 50;
+        int tempY = Math.abs(rand.nextInt()) % 880 + 50;
+        while (isColliding(tempX, tempY)) {
+            tempX = Math.abs(rand.nextInt()) % 1500 + 50;
+            tempY = Math.abs(rand.nextInt()) % 880 + 50;
+        }
+        this.x = tempX;
+        this.y = tempY;
     }
 
     public void draw(ImageObserver obs) {
@@ -104,4 +168,17 @@ public class Enemy {/*
             outer.g2.drawImage(img, x, y, obs);
         }
     }
-*/}
+
+    public boolean isColliding(int x, int y) {
+        boolean result = false;
+        if (!outer.tank1.isExploded && outer.tank1.collision(x, y, sizeX, sizeY)) result = true;
+        if (!outer.tank2.isExploded && outer.tank2.collision(x, y, sizeX, sizeY)) result = true;
+        for (TankGame.Bullet tempBullet : outer.bulletsList) {
+            if (tempBullet != null && tempBullet.show && tempBullet.collision(x, y, sizeX, sizeY)) result = true;
+        }
+        for (Wall[] tempWallArray : outer.layout)
+            for (Wall tempWall : tempWallArray)
+                if (tempWall != null && tempWall.blockName.equals("wall1") && tempWall.collision(x, y, sizeX, sizeY)) result = true;
+        return result;
+    }
+}
