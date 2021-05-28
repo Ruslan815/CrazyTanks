@@ -437,7 +437,6 @@ public class TankGame extends JPanel implements Runnable {
         }
     }
 
-    // TODO Проверить правильность индексации
     public void drawBackGroundImage() {
         int TileWidth = backgroundImage.getWidth(this);
         int TileHeight = backgroundImage.getHeight(this);
@@ -447,7 +446,7 @@ public class TankGame extends JPanel implements Runnable {
 
         for (int i = -1; i <= NumberY; i++) {
             for (int j = 0; j <= NumberX; j++) {
-                g2.drawImage(backgroundImage, j * TileWidth, i * TileHeight, TileWidth, TileHeight, this); // third param y: i * TileHeight + (move % TileHeight)
+                g2.drawImage(backgroundImage, j * TileWidth, i * TileHeight, TileWidth, TileHeight, this);
             }
         }
     }
