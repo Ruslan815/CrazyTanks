@@ -46,7 +46,7 @@ public class TankGame extends JPanel implements Runnable {
 
     ArrayList<Bullet> bulletsList = new ArrayList<Bullet>();
     int w = 1610, h = 930; // fixed size window game 
-    int enemyCount = 5;
+    static int enemyCount = 5;
     Enemy[] enemies;
     GameEvents gameEvents;
 
@@ -625,16 +625,19 @@ public class TankGame extends JPanel implements Runnable {
         switch (evt.getActionCommand()) {
             case "Карта №1":
                 TankGame.selectedMapNumber = 1;
+                TankGame.enemyCount = 4;
                 startMainFrame();
                 currentMenu.setVisible(false);
                 break;
             case "Карта №2":
                 TankGame.selectedMapNumber = 2;
+                TankGame.enemyCount = 8;
                 startMainFrame();
                 currentMenu.setVisible(false);
                 break;
             case "Карта №3":
                 TankGame.selectedMapNumber = 3;
+                TankGame.enemyCount = 10;
                 startMainFrame();
                 currentMenu.setVisible(false);
                 break;
