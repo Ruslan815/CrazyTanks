@@ -97,7 +97,6 @@ public class Enemy {
             outer.tank1.health -= 25;
             outer.healthBar1.updateIncrement();
             if (outer.tank1.health > 0) outer.boom1.play();
-            System.out.println("Player 1 health updated to: " + outer.tank1.health);
             if (outer.tank1.health == 0) {
                 outer.tank1.isExploded = true;
                 outer.boom1.play();
@@ -110,7 +109,6 @@ public class Enemy {
             outer.tank2.health -= 25;
             outer.healthBar2.updateIncrement();
             if (outer.tank2.health > 0) outer.boom1.play();
-            System.out.println("Player 2 health updated to: " + outer.tank2.health);
             if (outer.tank2.health == 0) {
                 outer.tank2.isExploded = true;
                 outer.boom2.play();

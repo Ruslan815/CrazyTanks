@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-public class HUDelement extends TankGame {
+public class HUDElement extends TankGame {
 
     Image[] element;
     int x, y, framesCount;
@@ -14,7 +14,7 @@ public class HUDelement extends TankGame {
     int frameNumber = 0;
     final TankGame outer;
 
-    HUDelement(String name, int framesCount, int x, int y, final TankGame outer) throws IOException {
+    HUDElement(String name, int framesCount, int x, int y, final TankGame outer) throws IOException {
         this.x = x;
         this.y = y;
         this.framesCount = framesCount;

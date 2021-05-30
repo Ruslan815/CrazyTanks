@@ -21,7 +21,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 
 public class TankGame extends JPanel implements Runnable {
-
     private Thread thread;
     Image miniMap, leftScreen, rightScreen;
     Image backgroundImage, bullet;
@@ -40,22 +39,18 @@ public class TankGame extends JPanel implements Runnable {
     Bullet newTempBullet;
     Explosion explode1, explode2;
     Sound backgroundMusic, boom1, boom2;
-
-    // declare HUD elements
-    HUDelement healthBar1, healthBar2, game_over;
-
+    HUDElement healthBar1, healthBar2, game_over;
     ArrayList<Bullet> bulletsList = new ArrayList<Bullet>();
-    int w = 1610, h = 930; // fixed size window game 
+    int w = 1610, h = 930;
     static int enemyCount = 5;
     Enemy[] enemies;
     GameEvents gameEvents;
 
     public void init() {
-
         setFocusable(true);
         setBackground(Color.white);
-        Image wall1, wall2, island3, enemyOneImg, enemyTwoImg, enemyThreeImg;
-
+        Image wall1, wall2;
+        
         // Подключаем ресурсы
         try {
             String path = System.getProperty("user.dir");
@@ -70,12 +65,12 @@ public class TankGame extends JPanel implements Runnable {
             bonusItem = ImageIO.read(new File(path + "resources/BonusItem.png"));
             enemy = ImageIO.read(new File(path + "resources/enemy.png"));
 
-            healthBar1 = new HUDelement("/resources/health", 6, 75, 820, this);
-            healthBar2 = new HUDelement("/resources/health", 6, 1450, 820, this);
+            healthBar1 = new HUDElement("/resources/health", 6, 75, 820, this);
+            healthBar2 = new HUDElement("/resources/health", 6, 1450, 820, this);
             healthBar1.updateIncrement();
             healthBar2.updateIncrement();
 
-            game_over = new HUDelement("/resources/GameOver", 1, 745, 80, this);
+            game_over = new HUDElement("/resources/GameOver", 1, 745, 80, this);
 
             File layoutFile = new File(path + "resources/map_layout1");
             if (TankGame.selectedMapNumber == 0) {
@@ -143,8 +138,6 @@ public class TankGame extends JPanel implements Runnable {
         } catch (IOException e) {
             System.out.print("No resources are found.");
         }
-
-        System.out.println("Game Started.");
     }
 
     public class Bullet {
@@ -182,7 +175,7 @@ public class TankGame extends JPanel implements Runnable {
         }
 
         public void update(int i) throws IOException {
-            // Удаляем объект Bullet.
+            // Удаляем объект Bullet если show == false.
             if (this.show) {
                 this.x += this.bx;
                 this.y -= this.by;
@@ -239,12 +232,11 @@ public class TankGame extends JPanel implements Runnable {
     }
 
     public class Tank implements Observer {
-
         Image img;
         int x, y, speed, width, height;
         double angle;
         protected int health = 100;
-        Rectangle bbox;
+        Rectangle rectangleBox;
         boolean isExploded;
         boolean[] pressedKeys; // Left, Right, Up, Down, Shoot
         long lastShot; // One shot in 500 ms
@@ -272,9 +264,9 @@ public class TankGame extends JPanel implements Runnable {
         }
 
         public boolean collision(int x, int y, int w, int h) {
-            bbox = new Rectangle(this.x, this.y, this.width, this.height);
+            rectangleBox = new Rectangle(this.x, this.y, this.width, this.height);
             Rectangle otherBox = new Rectangle(x, y, w, h);
-            return this.bbox.intersects(otherBox);
+            return this.rectangleBox.intersects(otherBox);
         }
 
         public void moveTank() {
@@ -382,7 +374,6 @@ public class TankGame extends JPanel implements Runnable {
                     tank1.health -= 25;
                     healthBar1.updateIncrement();
                     if (health > 0) boom1.play();
-                    System.out.println("Player 1 health updated to: " + tank1.health);
                     if (tank1.health == 0) {
                         tank1.isExploded = true;
                         boom2.play();
@@ -392,7 +383,6 @@ public class TankGame extends JPanel implements Runnable {
                     tank2.health -= 25;
                     healthBar2.updateIncrement();
                     if (health > 0) boom1.play();
-                    System.out.println("Player 2 health updated to: " + tank2.health);
                     if (tank2.health == 0) {
                         tank2.isExploded = true;
                         boom2.play();
@@ -458,14 +448,13 @@ public class TankGame extends JPanel implements Runnable {
             for (Wall tempWall : tempWallArray)
                 if (tempWall != null) tempWall.update();
 
-        // update bullet locations
         for (int i = 0; i < bulletsList.size(); i++)
             bulletsList.get(i).update(i);
 
         for (Enemy tempEnemy: enemies)
             if (tempEnemy.show) tempEnemy.update();
 
-        // update explosion frames to advance animation
+        // Update explosion frames to advance animation
         if (explode1 != null && explode1.frameNumber < explode1.framesCount) explode1.updateIncrement();
         if (explode2 != null && explode2.frameNumber < explode2.framesCount) explode2.updateIncrement();
 
@@ -473,17 +462,14 @@ public class TankGame extends JPanel implements Runnable {
             for (Wall tempWall : tempWallArray)
                 if (tempWall != null) tempWall.draw(this);
 
-        // draw tanks while health > 0
         if (!tank1.isExploded) tank1.draw(this);
         if (!tank2.isExploded) tank2.draw(this);
         for (Enemy tempEnemy: enemies)
             if (tempEnemy.show) tempEnemy.draw(this);
 
-        // draw bullets
         for (Bullet tempBullet : bulletsList)
             tempBullet.draw(this);
 
-        // remove tanks from screen upon death
         if (tank1.isExploded) {
             explode2 = new Explosion("/resources/explosion2_", 7, tank1.x, tank1.y, this);
             tank1.y = -100;
@@ -493,7 +479,6 @@ public class TankGame extends JPanel implements Runnable {
             tank2.y = -100;
         }
 
-        // draw explosion frame
         if (explode1 != null && explode1.frameNumber < explode1.framesCount) {
             explode1.draw(this);
         }
@@ -518,7 +503,7 @@ public class TankGame extends JPanel implements Runnable {
         if (y1 + height > 900) y1 = 300;
         if (y2 + height > 900) y2 = 300;
 
-        // draw screen portions
+        // Draw screen portions
         try {
             leftScreen = bufferedImg1.getSubimage(x1, y1, width, height);
             rightScreen = bufferedImg1.getSubimage(x2, y2, width, height);
@@ -531,7 +516,7 @@ public class TankGame extends JPanel implements Runnable {
         rightScreen = rightScreen.getScaledInstance(800, 900, Image.SCALE_FAST);
         miniMap = bufferedImg1.getScaledInstance(400, 225, Image.SCALE_FAST);
 
-        // render single frame from parts (двойная буферизация)
+        // Render single frame from parts (двойная буферизация)
         BufferedImage display = new BufferedImage(this.w, this.h, BufferedImage.TYPE_INT_RGB);
         Graphics tempGraphics = display.getGraphics();
 
@@ -543,11 +528,11 @@ public class TankGame extends JPanel implements Runnable {
         g2.drawImage(rightScreen, 800, 0, this);
         g2.drawImage(miniMap, 600, 660, this);
 
-        // draw health bars
+        // Draw health bars
         healthBar1.draw(this);
         healthBar2.draw(this);
 
-        // game over logo and final score
+        // Game over logo and final score
         if (tank1.isExploded || tank2.isExploded) {
             tank1.isExploded = true;
             tank2.isExploded = true;
@@ -556,11 +541,13 @@ public class TankGame extends JPanel implements Runnable {
             game_over.draw(this);
             g2.setFont(new Font("Arial", Font.BOLD, 20));
             g2.setColor(Color.CYAN);
-            g2.drawString("ОЧКИ", 850, 125);
+            g2.drawString("ОЧКИ", 850, 115);
             g2.setFont(new Font("Arial", Font.BOLD, 15));
-            g2.drawString("Игрок 1", 750, 150);
+            g2.setColor(Color.BLUE);
+            g2.drawString("Игрок 1", 750, 140);
             g2.drawString(Integer.toString(score1), 960, 150);
-            g2.drawString("Игрок 2", 750, 180);
+            g2.setColor(Color.RED);
+            g2.drawString("Игрок 2", 750, 170);
             g2.drawString(Integer.toString(score2), 960, 180);
         }
     }
@@ -601,8 +588,8 @@ public class TankGame extends JPanel implements Runnable {
         }
     }
 
+    // Main Frame
     public static void startMainFrame() {
-        // Main Frame
         final TankGame mainGame = new TankGame();
         mainGame.init();
         JFrame mainJFrame = new JFrame("CrazyTanks");
@@ -647,8 +634,8 @@ public class TankGame extends JPanel implements Runnable {
         }
     }
 
+    // Menu Frame
     public static void startMenuFrame() {
-        // Menu Frame
         JFrame menuJFrame = new JFrame("CrazyTanks");
         TankGame.currentMenu = menuJFrame;
         menuJFrame.setSize(new Dimension(250, 250));
