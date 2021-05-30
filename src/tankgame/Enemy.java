@@ -30,10 +30,10 @@ public class Enemy {
         this.outer = outer;
         this.img = img;
         this.rand = rand;
-        respawn();
         this.speed = speed;
         sizeX = img.getWidth(null);
         sizeY = img.getHeight(null);
+        respawn();
         lastChangedDirectionTime = new Date().getTime();
     }
 
@@ -176,7 +176,7 @@ public class Enemy {
         }
         for (Wall[] tempWallArray : outer.layout)
             for (Wall tempWall : tempWallArray)
-                if (tempWall != null && tempWall.blockName.equals("wall1") && tempWall.collision(tempX, tempY, sizeX, sizeY)) result = true;
+                if (tempWall != null && tempWall.show && (tempWall.blockName.equals("wall1") || tempWall.blockName.equals("wall2")) && tempWall.collision(tempX, tempY, sizeX, sizeY)) result = true;
         return result;
     }
 }
