@@ -24,21 +24,14 @@ public class Enemy {
     boolean isColliding = false;
     int lastDirection = 0;
     long lastChangedDirectionTime;
+    long attemptsStartTime;
 
     Enemy(Image img, int speed, Random rand, final TankGame outer) {
         this.outer = outer;
         this.img = img;
         this.rand = rand;
-        int tempX = Math.abs(rand.nextInt()) % 1500 + 50;
-        int tempY = Math.abs(rand.nextInt()) % 880 + 50;
-        while (isColliding(tempX, tempY)) {
-            tempX = Math.abs(rand.nextInt()) % 1500 + 50;
-            tempY = Math.abs(rand.nextInt()) % 880 + 50;
-        }
-        this.x = tempX;
-        this.y = tempY;
+        respawn();
         this.speed = speed;
-        this.show = true;
         sizeX = img.getWidth(null);
         sizeY = img.getHeight(null);
         lastChangedDirectionTime = new Date().getTime();
@@ -111,7 +104,6 @@ public class Enemy {
             }
             outer.explode1 = new Explosion("/resources/explosion1_", 6, this.x, this.y, outer);
             this.respawn();
-            show = true;
         }
         if (outer.tank2.collision(x, y, sizeX, sizeY)) {
             show = false;
@@ -125,7 +117,6 @@ public class Enemy {
             }
             outer.explode1 = new Explosion("/resources/explosion1_", 6, this.x, this.y, outer);
             this.respawn();
-            show = true;
         }
         if (outer.newTempBullet != null) {
             if (this.collision(outer.newTempBullet.x, outer.newTempBullet.y, outer.newTempBullet.width, outer.newTempBullet.height)) {
@@ -147,20 +138,27 @@ public class Enemy {
                     default:
                         break;
                 }
-                show = true;
             }
         }
     }
 
     public void respawn() {
         int tempX = Math.abs(rand.nextInt()) % 1500 + 50;
-        int tempY = Math.abs(rand.nextInt()) % 880 + 50;
+        int tempY = Math.abs(rand.nextInt()) % 800 + 50;
+        attemptsStartTime = new Date().getTime();
         while (isColliding(tempX, tempY)) {
             tempX = Math.abs(rand.nextInt()) % 1500 + 50;
-            tempY = Math.abs(rand.nextInt()) % 880 + 50;
+            tempY = Math.abs(rand.nextInt()) % 800 + 50;
+            long currTime = new Date().getTime();
+            if (currTime - attemptsStartTime > 100) {
+                this.show = false;
+                this.x = -100;
+                return;
+            }
         }
         this.x = tempX;
         this.y = tempY;
+        this.show = true;
     }
 
     public void draw(ImageObserver obs) {
@@ -169,16 +167,16 @@ public class Enemy {
         }
     }
 
-    public boolean isColliding(int x, int y) {
+    public boolean isColliding(int tempX, int tempY) {
         boolean result = false;
-        if (!outer.tank1.isExploded && outer.tank1.collision(x, y, sizeX, sizeY)) result = true;
-        if (!outer.tank2.isExploded && outer.tank2.collision(x, y, sizeX, sizeY)) result = true;
+        if (!outer.tank1.isExploded && outer.tank1.collision(tempX, tempY, sizeX, sizeY)) result = true;
+        if (!outer.tank2.isExploded && outer.tank2.collision(tempX, tempY, sizeX, sizeY)) result = true;
         for (TankGame.Bullet tempBullet : outer.bulletsList) {
-            if (tempBullet != null && tempBullet.show && tempBullet.collision(x, y, sizeX, sizeY)) result = true;
+            if (tempBullet != null && tempBullet.show && tempBullet.collision(tempX, tempY, sizeX, sizeY)) result = true;
         }
         for (Wall[] tempWallArray : outer.layout)
             for (Wall tempWall : tempWallArray)
-                if (tempWall != null && tempWall.blockName.equals("wall1") && tempWall.collision(x, y, sizeX, sizeY)) result = true;
+                if (tempWall != null && tempWall.blockName.equals("wall1") && tempWall.collision(tempX, tempY, sizeX, sizeY)) result = true;
         return result;
     }
 }
